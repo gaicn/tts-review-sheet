@@ -1,6 +1,6 @@
 {
-  "version": "1.3.2",
+  "version": "1.3.3",
   "file": "tts-review.html",
   "released": "2026-11-11",
-  "notes": "AI-assisted manual review (optional, self-configured endpoint/model/key stored locally). Offline by default; the opt-in version check is read-only and multi-source and never uploads table data. Downloaded bytes must embed TOOL_VERSION >= the announced latest. New in 1.3.2: version check and download retry silently up to 3 times (900ms apart) when every source fails, so a brief network outage does not block the reviewer. Final answers are always chosen by the native-speaker human reviewer."
+  "notes": "AI-assisted manual review (optional, self-configured endpoint/model/key stored locally). Offline by default; the opt-in version check is read-only, multi-source and never uploads table data. Downloaded bytes must embed TOOL_VERSION >= the announced latest. Version check and download retry silently up to 3 times when every source fails. New in 1.3.3: the post-download done step card is gone (the panel simply closes once the file is saved) and the backup / data-carryover hint is now small print on the new-version card. Final answers are always chosen by the native-speaker human reviewer."
 }
