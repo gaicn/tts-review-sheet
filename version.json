@@ -1,6 +1,6 @@
 {
-  "version": "1.3.0",
+  "version": "1.3.1",
   "file": "tts-review.html",
   "released": "2026-11-11",
-  "notes": "AI-assisted manual review (optional): reviewer may configure their own endpoint / model / API key, stored only in this browser's local storage. The tool stays offline by default; the opt-in version check is still read-only and multi-source, and never uploads table data. Only when the reviewer opens the AI panel for one row and clicks Send is that single row's source text, current translation and read-as string POSTed to the reviewer's own endpoint. Final answers are always chosen by the native-speaker human reviewer."
+  "notes": "AI-assisted manual review (optional): reviewer may configure their own endpoint / model / API key, stored only in this browser's local storage. Offline by default; the opt-in version check is read-only and multi-source and never uploads table data. Only when the reviewer opens the AI panel for one row and clicks Send is that single row POSTed to their own endpoint. Final answers are always chosen by the native-speaker human reviewer. Download integrity: bytes are accepted only if they embed a TOOL_VERSION >= the announced latest version, so a stale CDN cache can never be silently served as an update."
 }
