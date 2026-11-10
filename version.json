@@ -1,6 +1,6 @@
 {
-  "version": "1.3.4",
+  "version": "1.3.5",
   "file": "tts-review.html",
   "released": "2026-11-11",
-  "notes": "AI-assisted manual review (optional, self-configured endpoint/model/key stored locally). Offline by default; the opt-in version check is read-only, multi-source and never uploads table data. Downloaded bytes must embed TOOL_VERSION >= the announced latest. Version check and download retry silently up to 3 times when every source fails. New in 1.3.4: download falls back to the GitHub Contents API (base64 payload decoded back into bytes before the version check), so an update completes even on networks that can only reach api.github.com. Also ships the AI settings notice about obtaining a free-tier API key yourself. Final answers are always chosen by the native-speaker human reviewer."
+  "notes": "AI-assisted manual review (optional, self-configured endpoint/model/key stored locally). Offline by default; the opt-in version check is read-only, multi-source and never uploads table data. Downloaded bytes must embed TOOL_VERSION >= the announced latest. Version check and download retry silently up to 3 times when every source fails. New in 1.3.5: a Feedback entry builds a draft locally with only non-sensitive metadata (tool version / UI language / delivery language) and copies it to the clipboard. Nothing is sent, uploaded or opened; the draft never contains table data, and the tool does not decide where feedback goes. Also keeps the GitHub Contents API download fallback from 1.3.4. Final answers are always chosen by the native-speaker human reviewer."
 }
