@@ -280,7 +280,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
   var KEY = 'zh_tts_review_v1';
   // 显式版本号：写进工具 footer 与客户交付报告，便于追溯。版本真相源在本文件里，
   // 发布端的 version.json 只是「当前最新版是多少」的对外声明。
-  var TOOL_VERSION = '1.3.1';
+  var TOOL_VERSION = '1.3.2';
   // 联网目标只有公开成品库的只读静态文件及其只读镜像。只有用户主动点「查看新版本 / 下载」
   // 才会请求；均为 GET、无请求体、不携带表格数据、不带凭据，绝不上传任何内容。
   var REPO = 'gaicn/tts-review-sheet';
@@ -1734,13 +1734,31 @@ tbody#demoBody tr td.no{background:#fdf0d0}
       });
     });
   }
+  // 网络瞬时抖动时自动静默重试；不弹提示、不改文案，全部失败才交给上层判失败
+  function retry(fn, times, gapMs){
+    return new Promise(function(resolve, reject){
+      var attempt = 0;
+      function run(){
+        fn().then(resolve, function(err){
+          attempt++;
+          if(attempt >= times){ reject(err); return; }
+          setTimeout(run, gapMs);
+        });
+      }
+      run();
+    });
+  }
   // 只读取版本号：不解析 / 执行远端内容，不拼用户输入进 URL
   function startCheck(){
     if(!VERSION_SOURCES.length){ renderVerPanel('unconfigured'); return; }
     renderVerPanel('checking');
-    fetchAllVersions(VERSION_SOURCES, CHECK_TIMEOUT_MS)
-      .then(function(latest){
+    retry(function(){
+      return fetchAllVersions(VERSION_SOURCES, CHECK_TIMEOUT_MS).then(function(latest){
         if(!latest) throw new Error('no version');
+        return latest;
+      });
+    }, 3, 900)
+      .then(function(latest){
         latestVer = latest;
         renderVerPanel('result', { latest: latest, hasNew: cmpVer(latest, TOOL_VERSION) > 0 });
       })
@@ -1752,7 +1770,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
     var urls = DOWNLOAD_SOURCES.slice();
     if(/^\d+(\.\d+)*$/.test(latestVer))
       urls.unshift('https://cdn.jsdelivr.net/gh/' + REPO + '@v' + latestVer + '/tts-review.html');
-    fetchFirstBuf(urls, CHECK_TIMEOUT_MS, latestVer)
+    retry(function(){ return fetchFirstBuf(urls, CHECK_TIMEOUT_MS, latestVer); }, 3, 900)
       .then(function(buf){
         download('tts-review.html', buf, 'text/html;charset=utf-8');
         renderVerPanel('done');
