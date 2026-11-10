@@ -126,6 +126,31 @@ tbody#demoBody tr td.no{background:#fdf0d0}
 .demo-tip{display:block;font-size:10.5px;color:#9a7b3f;margin-top:3px;line-height:1.35}
 .demo-src{display:inline-block;font-size:10.5px;padding:1px 5px;border-radius:4px;margin-top:3px;
   background:#fde9c8;color:var(--readink)}
+
+  /* v1.3.0 AI-assisted review */
+  .aibtn{display:inline-block;margin:0 0 5px;padding:3px 8px;font-size:11px;border:1px solid var(--accent);border-radius:5px;background:#eef4ff;color:#12325c;cursor:pointer}
+  .aibtn:hover{background:#dbe8ff}
+  .aibtn:disabled{opacity:.45;cursor:not-allowed}
+  .aimask{position:fixed;inset:0;background:rgba(20,28,40,.42);z-index:60}
+  .aimodal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(900px,94vw);max-height:88vh;overflow:auto;z-index:61;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 18px 50px rgba(0,0,0,.22);padding:18px 20px;font-size:13px}
+  .aimodal h3{margin:0 0 10px;font-size:16px}
+  .aimodal .airow{margin:9px 0}
+  .aimodal label{display:block;font-size:11.5px;color:var(--muted);margin-bottom:3px}
+  .aimodal input,.aimodal textarea{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:13px/1.5 inherit}
+  .aimodal textarea{resize:vertical;min-height:50px}
+  .aigrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .aibox{border:1px solid var(--line);border-radius:8px;padding:10px;background:#fafbfd}
+  .aibox h4{margin:0 0 8px;font-size:12.5px;color:#12325c}
+  .aichat{border:1px solid var(--line);border-radius:8px;padding:10px;max-height:200px;overflow:auto;background:#fbfcfe;margin:10px 0}
+  .aimsg{margin:0 0 8px;font-size:12px;line-height:1.55;white-space:pre-wrap;word-break:break-word}
+  .aimsg.user{color:#12325c}.aimsg.ai{color:#1c2430}
+  .aicand{border:1px solid #dfe3e8;border-radius:7px;padding:8px 10px;margin:6px 0;background:#fff;font-size:12px}
+  .aicand .bad{color:#a33}.aicand .good{color:#1a7f37}
+  .aicand button{margin-top:6px;font-size:11px;padding:2px 8px;cursor:pointer}
+  .aifoot{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+  .aifoot button{padding:5px 14px;font-size:12px;cursor:pointer}
+  .aiwarn{font-size:11.5px;color:var(--muted);line-height:1.6;margin:8px 0}
+  .aierr{color:#a33;font-size:12px;margin:6px 0}
 </style>
 </head>
 <body>
@@ -181,6 +206,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
     <button type="button" class="primary" id="btnImport" data-i18n="btnImport">从下方粘贴区导入</button>
     <button type="button" id="btnCsv" data-i18n="btnCsv">导出 CSV（Excel 可开）</button>
     <button type="button" id="btnJson" data-i18n="btnJson">导出 JSON 备份</button>
+    <button type="button" id="btnAiSettings" data-i18n="aiSettings">⚙ AI 设置</button>
     <button type="button" class="primary" id="btnDelivery" data-i18n="btnDelivery" data-i18n-title="btnDeliveryTitle" title="导出给客户看的英文交付报告">导出客户交付视图</button>
     <label class="chk"><span data-i18n="lblImportBackup">导入备份</span> <input type="file" id="fileJson" accept=".json,application/json"></label>
     <button type="button" id="btnReset" data-i18n="btnReset">清空内容</button>
@@ -254,7 +280,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
   var KEY = 'zh_tts_review_v1';
   // 显式版本号：写进工具 footer 与客户交付报告，便于追溯。版本真相源在本文件里，
   // 发布端的 version.json 只是「当前最新版是多少」的对外声明。
-  var TOOL_VERSION = '1.2.2';
+  var TOOL_VERSION = '1.3.0';
   // 联网目标只有公开成品库的只读静态文件及其只读镜像。只有用户主动点「查看新版本 / 下载」
   // 才会请求；均为 GET、无请求体、不携带表格数据、不带凭据，绝不上传任何内容。
   var REPO = 'gaicn/tts-review-sheet';
@@ -975,6 +1001,35 @@ tbody#demoBody tr td.no{background:#fdf0d0}
     mn: { h1:'Олон хэлний орчуулга, дуудлагын гар аргаар шалгах хуудас', sub:'Зөвхөн төрөлх хэлтэй хүний гар аргаар шалгахад зориулав' }
   };
   Object.keys(OVERRIDE).forEach(function(l){ if(I18N[l]) Object.assign(I18N[l], OVERRIDE[l]); });
+  // v1.3.0 定位：AI 辅助人工审核（AI 只给候选，最终答案由人选定）
+  var AI_WORDING = {
+    zh:{
+      h1:'多语言译文与发音 · AI 辅助人工审核表',
+      sub:'地名 / 名词 / 短语等的可交付正确译文 + 正确发音 · 逐行人工审核留痕 · 可选 AI 辅助交叉核对 · 数据存本机',
+      nativeOnly:'面向母语人工审核人员；文字与发音的正确性由人最终判定。AI 只提供候选答案、可信度与权威性参考，不替人做决定。',
+      noticeBody:'<b>适用对象：</b>母语人工审核人员逐行核对可交付译文与发音是否正确。可选启用 AI 辅助交叉核对候选答案；<b>最终答案由人选定</b>，AI 输出仅供参考，不自动写入表格。<br>',
+      footer:'本文件默认离线可用，所有样式与脚本均内联；译文审校 / 校音 / 导入导出 / 交付报告断网照常。点「查看新版本」只读版本信息与新版文件；<b>启用 AI 辅助时</b>，才会把当前这一行的源文与当前译文 / 校音发往你自填的接口。endpoint / model / key 只存本机，不上传整表、备注或审核标记，也不打开任何网站。<br>',
+      aiSettings:'⚙ AI 设置', aiOpen:'AI 辅助', aiOpenTitle:'打开本行的 AI 辅助工作区（译文与校音合并处理）'
+    },
+    en:{
+      h1:'Multilingual Translation & Pronunciation - AI-Assisted Manual Review Sheet',
+      sub:'Deliverable correct translations and correct pronunciation for place names, nouns and phrases - line-by-line manual review log - optional AI-assisted cross-check - data stays on this machine',
+      nativeOnly:'For native-speaker human reviewers. Correctness of wording and pronunciation is finally judged by a human; AI only offers candidate answers, confidence and authority hints and never decides for you.',
+      noticeBody:'<b>Who this sheet is for:</b> native-speaker human reviewers check, line by line, whether the deliverable translation and its pronunciation are correct. An optional AI cross-check may suggest candidates; <b>the human picks the final answer</b> and AI output is advisory only, never written to the sheet automatically.<br>',
+      footer:'This file works offline by default with all styles and scripts inline; review, pronunciation, import / export and delivery reports need no network. "Check for a newer version" only reads version info and the new file; <b>enabling AI assistance</b> sends only this one row\'s source text and current translation / pronunciation string to the endpoint you configured. Endpoint / model / key stay on this machine - no full table, notes or review flags are uploaded, and no website is opened.<br>',
+      aiSettings:'AI settings', aiOpen:'AI assist', aiOpenTitle:'Open the AI-assisted workspace for this row (translation and pronunciation handled together)'
+    },
+    ko:{
+      h1:'다국어 번역·발음 · AI 보조 수동 검수 시트',
+      sub:'지명 / 명사 / 구문의 납품 가능한 올바른 번역 + 올바른 발음 · 줄별 수동 검수 기록 · 선택적 AI 보조 교차 확인 · 데이터는 이 기기에만 저장',
+      nativeOnly:'모국어 인공 검수자용. 문구와 발음의 정확성은 최종적으로 사람이 판단하며, AI는 후보 답안·신뢰도·권위 정보만提供参考하고 사람을 대신해 결정하지 않습니다.',
+      noticeBody:'<b>사용 대상:</b> 모국어 인공 검수자가 줄마다 납품 번역과 발음이 올바른지 확인합니다. 선택적으로 AI 교차 확인이 후보를 제안할 수 있으나, <b>최종 답안은 사람이 선택</b>하며 AI 출력은 참고용으로만 쓰이고 표에 자동 반영되지 않습니다.<br>',
+      footer:'이 파일은 기본적으로 오프라인에서 작동하며 모든 스타일·스크립트가 인라인입니다. 「새 버전 확인」은 버전 정보와 새 파일만 읽습니다. <b>AI 보조를 켤 때만</b> 현재 줄의 원문과 현재 번역 / 발음 문자열을 직접 입력한 endpoint로 보냅니다. endpoint / model / key는 이 기기에만 저장되며 표 전체·비고·검수 표시는 업로드하지 않고 웹사이트도 열지 않습니다.<br>',
+      aiSettings:'AI 설정', aiOpen:'AI 보조', aiOpenTitle:'이 줄의 AI 보조 작업공간 열기 (번역과 발음 함께 처리)'
+    }
+  };
+  Object.keys(AI_WORDING).forEach(function(l){ if(I18N[l]) Object.assign(I18N[l], AI_WORDING[l]); });
+
   // 5 个扩展语本就是英文 fallback：整体同步为已升级的 I18N.en，只保留各自本地 h1/sub
   ['ja','km','fil','my','mn'].forEach(function(l){
     if(!I18N[l]) return;
@@ -1065,7 +1120,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
     });
   }
 
-  var state = { rows:[], settings:{ female:'', male:'', rate:0.9, lang:'zh', deliveryLang:'zh-CN', lockedAll:false } };
+  var state = { rows:[], settings:{ female:'', male:'', rate:0.9, lang:'zh', deliveryLang:'zh-CN', lockedAll:false, ai:{ endpoint:'', model:'', key:'' } } };
   var tbody = document.getElementById('tbody');
   var saveTimer = null;
 
@@ -1172,7 +1227,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
         '<td><textarea data-f="read" spellcheck="false" placeholder="'+t('phRead')+'"></textarea>'+
             '<div class="mini"><button type="button" data-act="copy-zh" title="'+t('titleCopyZh')+'">'+t('btnCopyZh')+'</button>'+
             '<button type="button" data-act="clear-read" title="'+t('titleClearRead')+'">'+t('btnClearRead')+'</button></div></td>'+
-        '<td><div class="play-row">'+
+        '<td><button type="button" class="aibtn" data-act="ai" title="'+t('aiOpenTitle')+'">'+t('aiOpen')+'</button><div class="play-row">'+
             '<button type="button" class="f" data-act="play-f" title="'+t('titlePlayF')+'">'+t('btnPlayF')+'</button>'+
             '<button type="button" class="m" data-act="play-m" title="'+t('titlePlayM')+'">'+t('btnPlayM')+'</button>'+
             '<button type="button" data-act="stop" title="'+t('titleStop')+'">'+t('btnStop')+'</button>'+
@@ -1277,6 +1332,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
     var btn = e.target.closest('button[data-act]'); if(!btn || btn.disabled) return;
     var tr = btn.closest('tr'); var r = state.rows[Number(tr.dataset.i)];
     var act = btn.dataset.act;
+    if(act === 'ai'){ openAiPanel(Number(tr.dataset.i)); return; }
     if(act === 'play-f' || act === 'play-m'){
       speak(sourceOf(r), act === 'play-f' ? 'female' : 'male');
       if(!r.reviewed){
@@ -1443,7 +1499,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
     h.push('@media print{body{padding:0}h2{page-break-after:avoid}tr{page-break-inside:avoid}}');
     h.push('</style></head><body>');
     h.push('<h1>Translation delivery &mdash; English to ' + dlEn() + '</h1>');
-    h.push('<p class="sub">' + rows.length + ' lines &middot; ' + dlEn() + ' delivery &middot; native-speaker manual review of translation and pronunciation</p>');
+    h.push('<p class="sub">' + rows.length + ' lines &middot; ' + dlEn() + ' delivery &middot; AI-assisted manual review of translation and pronunciation (AI cross-check is optional; the human reviewer makes the final call)</p>');
     h.push('<div class="meta">');
     h.push('<span>Generated: <b>' + stamp + '</b></span>');
     h.push('<span>Lines delivered: <b>' + delivered.length + ' / ' + rows.length + '</b></span>');
@@ -1466,7 +1522,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
     if(!noted.length){
       h.push('<p class="empty">No pronunciation or review notes recorded.</p>');
     }else{
-      h.push('<p class="sub">Lines below were checked against a local TTS voice. The ' + dlEn() + ' column is the deliverable text; the notes are suggestions for your TTS dictionary / SSML, not replacement text. All judgements were made by a native-speaker human reviewer.</p>');
+      h.push('<p class="sub">Lines below were checked against a local TTS voice. The ' + dlEn() + ' column is the deliverable text; the notes are suggestions for your TTS dictionary / SSML, not replacement text. Final judgements were made by a native-speaker human reviewer; an optional AI cross-check may have suggested candidate answers.</p>');
       h.push('<table><colgroup><col class="c-n2"><col class="c-z2"><col class="c-nt"></colgroup>');
       h.push('<thead><tr><th>No.</th><th>' + dlEn() + ' (delivery)</th><th>Reviewer notes</th></tr></thead><tbody>');
       noted.forEach(function(r){
@@ -1478,7 +1534,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
     h.push('<div class="foot">');
     h.push('The "' + dlEn() + ' (delivery)" column is the final translation and must be used as-is for synthesis. Pronunciation verification used a stand-in text read by a local browser voice; it is <b>not</b> part of the delivered translation and never appears in this report.<br>');
     h.push('Final pronunciation fixes (polyphonic characters, place names, spoken-form numbers) must be applied in your TTS pipeline via dictionary / SSML rules. The notes above list the lines that need attention.<br>');
-    h.push('Reviewed by a native-speaker human reviewer. This tool produces no machine translation and does not replace human judgement.<br>');
+    h.push('Reviewed by a native-speaker human reviewer, with optional AI-assisted cross-check of candidate translations and pronunciations. AI output is advisory only; the reviewer selects and confirms every final answer.<br>');
     h.push('This report is a self-contained offline file with no external resources and no off-platform contact details. All communication stays on Upwork.');
     h.push('<div class="credit"><span class="author">Created by Siyuan Zheng &middot; <a href="https://www.upwork.com/freelancers/~01dcb0ebfb63cafa8d" target="_blank" rel="noopener">Upwork profile</a></span><span class="sep">&middot;</span><svg class="mark" viewBox="0 0 64 64" width="13" height="13" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#12325c"/><g fill="#fff"><rect x="14" y="18" width="36" height="5" rx="2.5"/><rect x="14" y="30" width="28" height="5" rx="2.5"/><rect x="14" y="42" width="20" height="5" rx="2.5"/></g><circle cx="48" cy="44" r="6" fill="#4da3ff"/></svg><span class="toolver">Review sheet v' + TOOL_VERSION + '</span><span class="sep">&middot;</span>&copy; 2026</div>');
     h.push('</div>');
@@ -1711,6 +1767,187 @@ tbody#demoBody tr td.no{background:#fdf0d0}
     setTimeout(fillVoiceSelects, 800);
   }
   flash(t('flashReady'));
+
+  // ================= v1.3.0 AI-assisted review module =================
+  var AI_SYS = 'You are a meticulous multilingual proofreading assistant for a native-speaker human reviewer. '
+    + 'The reviewer is checking ONE line: an English source string, its deliverable translation into the target language, '
+    + 'and an optional pronunciation "read-as" string used only by a local TTS voice. '
+    + 'Assess: (1) whether the translation is correct, whether multiple correct answers exist, and give candidate answers '
+    + 'with confidence and whether the source is authoritative; (2) whether the word/name is polyphonic, and give candidate '
+    + 'read-as strings with confidence and authority. Never decide for the reviewer - list candidates and let the human choose. '
+    + 'Reply with ONLY a JSON object, no markdown, no extra text, exactly this shape: '
+    + '{"translation":{"multiple":false,"verdict":"...","candidates":[{"text":"...","confidence":"high|medium|low","authoritative":true,"reason":"..."}]},'
+    + '"pronunciation":{"polyphonic":false,"verdict":"...","candidates":[{"read":"...","confidence":"high|medium|low","authoritative":true,"reason":"..."}]}}';
+
+  function aiCfg(){ return state.settings.ai || {}; }
+  function aiReady(){ var c = aiCfg(); return !!(c.endpoint && c.model && c.key); }
+  function closeAiModal(){
+    var a = document.getElementById('aiMask'), b = document.getElementById('aiModal');
+    if(a) a.remove(); if(b) b.remove();
+  }
+  function aiModal(html){
+    closeAiModal();
+    var mask = document.createElement('div'); mask.className = 'aimask'; mask.id = 'aiMask';
+    var box = document.createElement('div'); box.className = 'aimodal'; box.id = 'aiModal';
+    box.setAttribute('role','dialog'); box.innerHTML = html;
+    document.body.appendChild(mask); document.body.appendChild(box);
+    mask.addEventListener('click', closeAiModal);
+    return box;
+  }
+  function aiParse(txt){
+    var a = txt.indexOf('{'), b = txt.lastIndexOf('}');
+    if(a < 0 || b <= a) return null;
+    try { return JSON.parse(txt.slice(a, b + 1)); } catch(e){ return null; }
+  }
+  function aiRequest(messages, ok, fail){
+    var c = aiCfg();
+    var url = String(c.endpoint || '').replace(/\/+$/, '') + '/chat/completions';
+    var ctl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+    var timer = ctl ? setTimeout(function(){ ctl.abort(); }, 45000) : null;
+    fetch(url, {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + c.key },
+      body: JSON.stringify({ model: c.model, messages: messages, temperature: 0.2 }),
+      signal: ctl ? ctl.signal : undefined
+    }).then(function(r){
+      if(timer) clearTimeout(timer);
+      if(!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }).then(function(d){
+      var m = d && d.choices && d.choices[0] && d.choices[0].message;
+      ok(String((m && m.content) || ''));
+    }).catch(function(e){ if(timer) clearTimeout(timer); fail(String(e && e.message || 'network error')); });
+  }
+  var aiCtx = { idx:-1, messages:[], last:null, busy:false, err:'' };
+  function openAiSettings(){
+    var c = aiCfg();
+    var box = aiModal('<h3>AI 设置 / AI settings</h3>'
+      + '<div class="aiwarn">Endpoint / model / key are saved only in this browser\'s localStorage. They are not written into the file or the client delivery report. '
+      + 'A network request happens ONLY when you click "Send / 发送并分析", and it sends only the current row.</div>'
+      + '<div class="airow"><label>接口地址 Endpoint (OpenAI compatible)</label><input id="aiEp" spellcheck="false" value="'+escHtml(c.endpoint||'')+'" placeholder="https://api.openai.com/v1"></div>'
+      + '<div class="airow"><label>模型 Model</label><input id="aiModel" spellcheck="false" value="'+escHtml(c.model||'')+'" placeholder="gpt-4o-mini"></div>'
+      + '<div class="airow"><label>API Key (只存本机 / local only)</label><input id="aiKey" type="password" value="'+escHtml(c.key||'')+'"></div>'
+      + '<div class="aifoot"><button type="button" data-ai="clear">清除 Clear</button>'
+      + '<button type="button" data-ai="cancel">取消 Cancel</button>'
+      + '<button type="button" data-ai="save" class="primary">保存 Save</button></div>');
+    box.addEventListener('click', function(e){
+      var b = e.target.closest('button[data-ai]'); if(!b) return;
+      var a = b.dataset.ai;
+      if(a === 'cancel'){ closeAiModal(); return; }
+      if(a === 'clear'){ state.settings.ai = { endpoint:'', model:'', key:'' }; save(); closeAiModal(); return; }
+      if(a === 'save'){
+        state.settings.ai = {
+          endpoint: document.getElementById('aiEp').value.trim(),
+          model: document.getElementById('aiModel').value.trim(),
+          key: document.getElementById('aiKey').value.trim()
+        };
+        save(); closeAiModal(); flash('AI 配置已保存 / AI settings saved');
+      }
+    });
+  }
+  function aiCandHtml(kind, arr){
+    if(!arr || !arr.length) return '<div class="aiwarn">No candidates returned for this part.</div>';
+    return arr.map(function(c, i){
+      var val = kind === 'translation' ? (c.text || '') : (c.read || '');
+      var conf = c.confidence === 'high' ? 'High' : (c.confidence === 'medium' ? 'Medium' : 'Low');
+      return '<div class="aicand"><b>'+escHtml(val)+'</b>'
+        + '<div>'+conf+' confidence &middot; '
+        + (c.authoritative ? '<span class="good">Authoritative / 权威</span>' : '<span class="bad">Not authoritative / 待核</span>')+'</div>'
+        + '<div>'+escHtml(c.reason||'')+'</div>'
+        + '<button type="button" data-ai="adopt" data-kind="'+kind+'" data-i="'+i+'">采用 Adopt</button></div>';
+    }).join('');
+  }
+  function aiAssessHtml(){
+    if(!aiCtx.last) return '';
+    var t = aiCtx.last.translation || {}, p = aiCtx.last.pronunciation || {};
+    return '<div class="aigrid">'
+      + '<div class="aibox"><h4>译文 Translation '+(t.multiple ? '&middot; 多答案 multiple' : '')+'</h4>'
+      + '<div class="aiwarn">'+escHtml(t.verdict||'')+'</div>'+aiCandHtml('translation', t.candidates)+'</div>'
+      + '<div class="aibox"><h4>校音 Pronunciation '+(p.polyphonic ? '&middot; 多音 polyphonic' : '')+'</h4>'
+      + '<div class="aiwarn">'+escHtml(p.verdict||'')+'</div>'+aiCandHtml('pronunciation', p.candidates)+'</div></div>';
+  }
+  function renderAiPanel(){
+    var r = state.rows[aiCtx.idx]; if(!r){ closeAiModal(); return; }
+    var chat = aiCtx.messages.filter(function(m){ return m.role !== 'system'; }).map(function(m){
+      return '<div class="aimsg '+m.role+'"><b>'+(m.role === 'user' ? '你 You' : 'AI')+'：</b>'+escHtml(m.content)+'</div>';
+    }).join('') || '<div class="aiwarn">尚未提问 / No question yet. 点「发送并分析」让 AI 评估本行译文与校音。</div>';
+    var html = '<h3>AI 辅助审核 / AI-assisted review &middot; 第 '+r.no+' 行</h3>'
+      + '<div class="aiwarn">AI 辅助人工审核 / AI-assisted manual review: candidates are written to the sheet only after a human confirms them.</div>'
+      + '<div class="aigrid">'
+      + '<div class="aibox"><h4>源文 Source</h4><div class="aiwarn">'+escHtml(r.en||'')+'</div>'
+      + '<h4>译文 Translation（交付 / deliverable）</h4><textarea id="aiZh" spellcheck="false">'+escHtml(r.zh||'')+'</textarea>'
+      + '<button type="button" data-ai="save-zh" style="margin-top:6px;font-size:11px">保存译文 Save translation</button></div>'
+      + '<div class="aibox"><h4>校音试读串 Pronunciation read-as（留空 = 读译文）</h4>'
+      + '<textarea id="aiRead" spellcheck="false">'+escHtml(r.read||'')+'</textarea>'
+      + '<button type="button" data-ai="save-read" style="margin-top:6px;font-size:11px">保存校音 Save read-as</button>'
+      + '<div class="aiwarn">目标语言 / Target: '+escHtml(dlEn())+'</div></div></div>'
+      + '<div class="aichat">'+chat+'</div>'
+      + (aiCtx.busy ? '<div class="aiwarn">正在请求 AI / Waiting for AI…</div>' : '')
+      + (aiCtx.err ? '<div class="aierr">AI 请求失败 / Request failed: '+escHtml(aiCtx.err)+'</div>' : '')
+      + aiAssessHtml()
+      + '<div class="airow"><label>追问 / Ask AI a follow-up</label>'
+      + '<textarea id="aiQ" spellcheck="false" placeholder="例如：这个地名的标准译法是什么？有没有多音读法？"></textarea></div>'
+      + '<div class="aiwarn">隐私边界 / Privacy: only this row\'s source text, current translation / read-as and your question are sent to the endpoint you configured. '
+      + 'No full table, notes, review flags or files are uploaded.</div>'
+      + (aiReady() ? '' : '<div class="aierr">尚未配置 AI / AI not configured. 点顶部「⚙ AI 设置」填写 endpoint / model / key。</div>')
+      + '<div class="aifoot">'
+      + '<button type="button" data-ai="settings">⚙ AI 设置</button>'
+      + '<button type="button" data-ai="ask" class="primary"'+(aiCtx.busy?' disabled':'')+'>发送并分析 Send</button>'
+      + '<button type="button" data-ai="next">下一行 Next →</button>'
+      + '<button type="button" data-ai="close">关闭 Close</button></div>';
+    var box = aiModal(html);
+    box.addEventListener('click', function(e){
+      var b = e.target.closest('button[data-ai]'); if(!b || b.disabled) return;
+      var a = b.dataset.ai;
+      if(a === 'close'){ closeAiModal(); return; }
+      if(a === 'settings'){ openAiSettings(); return; }
+      if(a === 'save-zh' || a === 'save-read'){
+        var row = state.rows[aiCtx.idx];
+        if(a === 'save-zh') row.zh = document.getElementById('aiZh').value;
+        else row.read = document.getElementById('aiRead').value;
+        var tr = tbody.children[aiCtx.idx]; if(tr) fillRow(tr, row);
+        updateStats(); save(); renderAiPanel(); return;
+      }
+      if(a === 'adopt'){
+        var kind = b.dataset.kind, i = Number(b.dataset.i);
+        var c = aiCtx.last && aiCtx.last[kind] && aiCtx.last[kind].candidates[i];
+        if(!c) return;
+        var rr = state.rows[aiCtx.idx];
+        if(kind === 'translation') rr.zh = String(c.text || ''); else rr.read = String(c.read || '');
+        var tr2 = tbody.children[aiCtx.idx]; if(tr2) fillRow(tr2, rr);
+        updateStats(); save(); renderAiPanel(); return;
+      }
+      if(a === 'next'){
+        var n = aiCtx.idx + 1;
+        if(n >= state.rows.length){ flash('已是最后一行 / Last row'); return; }
+        openAiPanel(n); return;
+      }
+      if(a === 'ask') aiSend(document.getElementById('aiQ').value.trim());
+    });
+  }
+  function aiSend(extra){
+    if(!aiReady()){ renderAiPanel(); return; }
+    var r = state.rows[aiCtx.idx]; if(!r) return;
+    if(!aiCtx.messages.length) aiCtx.messages.push({ role:'system', content: AI_SYS });
+    var q = extra || ('Source: ' + (r.en||'') + '\nTarget language: ' + dlEn()
+      + '\nCurrent translation: ' + (r.zh||'') + '\nCurrent pronunciation read-as: ' + (r.read||'')
+      + '\nPlease assess the translation and pronunciation and return the JSON only.');
+    aiCtx.messages.push({ role:'user', content: q });
+    aiCtx.busy = true; aiCtx.err = ''; renderAiPanel();
+    aiRequest(aiCtx.messages.slice(), function(txt){
+      aiCtx.messages.push({ role:'assistant', content: txt });
+      aiCtx.last = aiParse(txt);
+      aiCtx.busy = false; renderAiPanel();
+    }, function(err){
+      aiCtx.busy = false; aiCtx.err = err; renderAiPanel();
+    });
+  }
+  function openAiPanel(idx){
+    aiCtx = { idx:idx, messages:[], last:null, busy:false, err:'' };
+    renderAiPanel();
+  }
+  document.getElementById('btnAiSettings').addEventListener('click', openAiSettings);
+
 })();
 </script>
 </body>
