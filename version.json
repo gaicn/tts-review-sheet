@@ -1,0 +1,6 @@
+{
+  "version": "1.1.0",
+  "file": "tts-review.html",
+  "released": "2026-11-10",
+  "notes": "Offline by default. Opt-in version check and one-click download of the latest file."
+}

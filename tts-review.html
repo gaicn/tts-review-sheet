@@ -38,6 +38,11 @@ body.locked-all .lock-bar{display:block}
 .verpanel button{font:inherit;font-size:12px;padding:5px 11px;border:1px solid var(--line);
   border-radius:6px;background:var(--panel);color:var(--ink);cursor:pointer}
 .verpanel button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.verpanel button.primary.dl{background:var(--ok);border-color:var(--ok)}
+.verpanel .vermeta{background:var(--bg);border:1px solid var(--line);border-radius:6px;
+  padding:8px 10px;margin:0 0 10px;line-height:1.9}
+.verpanel .ver-ok{color:var(--ok);font-weight:600}
+.verpanel .ver-new{color:var(--warn);font-weight:600}
 .author a{color:var(--accent)}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:11px 13px;margin-bottom:11px}
 .notice-fold{background:#eef5ff;border:1px solid #c9dcff;border-radius:8px;margin-bottom:11px}
@@ -137,7 +142,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
 <div class="lock-bar" id="lockBar" data-i18n="lockBar">🔒 全局已锁定 · 点顶部「解锁」后方可编辑</div>
 
 <h1 data-i18n="h1">中文播报文稿 · TTS 审听与校音表</h1>
-<p class="sub" data-i18n="sub">离线单文件 · 193 行逐行试读 / 校音改变读音 / 审核锁定防误碰 · 数据只存本机浏览器，不上传</p>
+<p class="sub" data-i18n="sub">本地单文件工具 · 默认离线可用 · 193 行逐行试读 / 校音改变读音 / 审核锁定防误碰 · 数据只存本机浏览器，不上传</p>
 
 <details class="notice-fold" id="noticeFold">
   <summary data-i18n-html="noticeSummary">使用说明 · 校音怎么改变读音 / 审核锁定（点开看）<span class="fold-hint">第 1 行已填示范，可直接点 ♀ 女 试听</span></summary>
@@ -227,7 +232,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
 </details>
 
 <footer data-i18n-html="footer">
-  本文件为本地校对工具，不含任何联系方式、站外链接或外部资源；所有样式与脚本均内联，断网可用。<br>
+  本文件默认离线可用，所有样式与脚本均内联，审听 / 校音 / 导入导出 / 交付报告断网照常；只有你主动点页脚版本号里的「查看新版本」时才会联网，且只读取版本信息与新版文件，绝不上传表格内容。<br>
   试听使用浏览器内置语音合成：标注「本地」的声线在本机合成；若选用标注「网络」的声线，文本可能由浏览器发送给语音服务，请勿粘贴敏感内容。<br>
   数据自动保存在本浏览器 localStorage 中，换浏览器 / 清缓存前请先「导出 JSON 备份」。合同成立后如需交付，请经 Upwork workroom 上传。
 </footer>
@@ -237,8 +242,14 @@ tbody#demoBody tr td.no{background:#fdf0d0}
 (function(){
   'use strict';
   var KEY = 'zh_tts_review_v1';
-  // 显式版本号：写进工具 footer 与客户交付报告，便于追溯；纯静态文本，不含任何联网 / 上报
-  var TOOL_VERSION = '1.0.0';
+  // 显式版本号：写进工具 footer 与客户交付报告，便于追溯。版本真相源在本文件里，
+  // 发布端的 version.json 只是「当前最新版是多少」的对外声明。
+  var TOOL_VERSION = '1.1.0';
+  // 唯一的两个联网目标：公开成品库里的只读静态文件。只有用户主动点「查看新版本 / 下载」
+  // 才会请求；均为 GET、无请求体、不携带表格数据、不带凭据，绝不上传任何内容。
+  var VERSION_JSON_URL = 'https://raw.githubusercontent.com/gaicn/tts-review-sheet/main/version.json';
+  var DOWNLOAD_URL     = 'https://raw.githubusercontent.com/gaicn/tts-review-sheet/main/tts-review.html';
+  var CHECK_TIMEOUT_MS = 8000;
   var DEFAULT_ROWS = 193;
   var FEMALE = /xiaoxiao|xiaoyi|huihui|yaoyao|tingting|hanhan|female|女/i;
   var MALE = /yunxi|yunjian|kangkang|liang|male|男/i;
@@ -248,7 +259,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
     zh: {
       title:'中文播报文稿 · TTS 审听与校音表',
       h1:'中文播报文稿 · TTS 审听与校音表',
-      sub:'离线单文件 · 193 行逐行试读 / 校音改变读音 / 审核锁定防误碰 · 数据只存本机浏览器，不上传',
+      sub:'本地单文件工具 · 默认离线可用 · 193 行逐行试读 / 校音改变读音 / 审核锁定防误碰 · 数据只存本机浏览器，不上传',
       langTitle:'界面语言',
       noticeSummary:'使用说明 · 校音怎么改变读音 / 审核锁定（点开看）<span class="fold-hint">表头下方有独立示范行，可直接点 ♀ 女 试听</span>',
       noticeBody:'<b>校音怎么改变试听读音：</b>浏览器语音合成只认「送给它的那串文本」，没有「指定某个字读某个音」的接口，任何拼音、注音、标注都不会改变发音。<br>'+
@@ -281,7 +292,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
         '<code>华|huà|华山</code>　<code>燕|yān|燕京</code>　<code>厦|xià|厦门</code>　<code>乐|yuè|音乐</code> / <code>乐|lè|快乐</code><br>'+
         '<span style="color:var(--warn)">数字读法：号码里 <b>1</b> 常读「幺 yāo」、<b>0</b> 常读「洞 dòng」；<b>110</b> 读「幺幺零」而非「一百一十」。播报稿必须按口语写，不能只写阿拉伯数字。</span><br>'+
         '<span style="color:var(--muted)">罗马字残留（Incheon / Myeongdong 等）必须换成中文惯用译名，否则中文 TTS 会用中文腔硬念，一听就露。</span>',
-      footer:'本文件为本地校对工具，不含任何联系方式、站外链接或外部资源；所有样式与脚本均内联，断网可用。<br>'+
+      footer:'本文件默认离线可用，所有样式与脚本均内联，审听 / 校音 / 导入导出 / 交付报告断网照常；只有你主动点页脚版本号里的「查看新版本」时才会联网，且只读取版本信息与新版文件，绝不上传表格内容。<br>'+
         '试听使用浏览器内置语音合成：标注「本地」的声线在本机合成；若选用标注「网络」的声线，文本可能由浏览器发送给语音服务，请勿粘贴敏感内容。<br>'+
         '数据自动保存在本浏览器 localStorage 中，换浏览器 / 清缓存前请先「导出 JSON 备份」。合同成立后如需交付，请经 Upwork workroom 上传。',
       optAuto:'自动（按名称推断）', optLocal:' · 本地', optNet:' · 网络',
@@ -321,15 +332,27 @@ tbody#demoBody tr td.no{background:#fdf0d0}
       demoOrig:'原文', demoSrc:'当前读：校音串',
       demoReview:'不参与统计 / 导入 / 导出', demoNote:'工作留痕示范：初校 → 二次修订 → 交接说明',
       verTitle:'工具版本',
-      verInfo:'当前版本 v{v}。本工具为离线单文件，不会自动联网，数据只保存在本机浏览器。',
+      verInfo:'当前版本 v{v}。本工具默认离线可用：审听 / 校音 / 导入导出 / 交付报告断网照常。只有你点下方「查看新版本」才会联网，且只读取版本信息与新版文件，绝不上传表格内容。',
       verCheck:'查看新版本（需联网）',
       verCancel:'取消',
-      verNotConfigured:'尚未配置版本发布地址，未发起任何连接。'
+      verNotConfigured:'尚未配置版本发布地址，未发起任何连接。',
+      verChecking:'正在读取最新版本信息…',
+      verCurrent:'当前版本 v{v}',
+      verLatest:'最新版本 v{v}',
+      verHasNew:'发现新版本，可点下方按钮直接下载到本机。',
+      verUpToDate:'当前已是最新版本；如需一份干净副本，也可重新下载。',
+      verDownload:'⬇ 下载最新版',
+      verDownloading:'正在下载新版文件…',
+      verDone:'已下载到浏览器默认下载目录。请先「导出 JSON 备份」，再用新文件替换旧文件；数据会自动沿用。',
+      verFail:'暂时无法连接版本服务器（可能未联网或网络不通）。本机文件未被改动，可稍后重试。',
+      verDownloadFail:'下载失败，本机文件未被改动，可稍后重试。',
+      verClose:'关闭',
+      verRetry:'重试'
     },
     en: {
       title:'Chinese Announcement Script - TTS Preview & Pronunciation Table',
       h1:'Chinese Announcement Script - TTS Preview & Pronunciation Table',
-      sub:'Offline single file - 193 line-by-line previews / pronunciation changes the reading / review lock prevents accidental edits - Data stays in this browser only, never uploaded',
+      sub:'Local single file - works offline by default - 193 line-by-line previews / pronunciation changes the reading / review lock prevents accidental edits - Data stays in this browser only, never uploaded',
       langTitle:'Interface language',
       noticeSummary:'How to use - pronunciation & review lock (click to open)<span class="fold-hint">A separate demo row sits under the header - click the female button to preview</span>',
       noticeBody:'<b>How pronunciation adjustment changes the preview:</b> Browser speech synthesis only reads the exact string of text it is given; there is no API to "make this character sound like that". Pinyin, phonetic notes and annotations never change the pronunciation.<br>'+
@@ -362,7 +385,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
         '<code>华|huà|华山</code>　<code>燕|yān|燕京</code>　<code>厦|xià|厦门</code>　<code>乐|yuè|音乐</code> / <code>乐|lè|快乐</code><br>'+
         '<span style="color:var(--warn)">Number reading: in phone numbers <b>1</b> is often read 「幺 yāo」 and <b>0</b> as 「洞 dòng」; <b>110</b> is read 「幺幺零」, not 「一百一十」. Announcement scripts must be written in spoken form, not just Arabic digits.</span><br>'+
         '<span style="color:var(--muted)">Romanized leftovers (Incheon / Myeongdong, etc.) must be replaced with standard Chinese names, otherwise a Chinese TTS will read them with a Chinese accent and it shows immediately.</span>',
-      footer:'This file is a local proofreading tool with no contact details, external links or external resources; all styles and scripts are inline and it works offline.<br>'+
+      footer:'This tool works offline by default with all styles and scripts inline; preview, pronunciation, import / export and the delivery report all work without a connection. It connects only when you actively click "Check for a newer version" on the footer version number, and only reads version info and the new file - your table data is never uploaded.<br>'+
         'Preview uses the browser built-in speech synthesis: voices marked "local" are synthesized on this machine; if you pick a voice marked "network", the text may be sent by the browser to a speech service - do not paste sensitive content.<br>'+
         'Data is saved automatically in this browser localStorage; before switching browsers or clearing cache, use "Export JSON backup" first. After a contract is in place, deliver files via the Upwork workroom.',
       optAuto:'Auto (by voice name)', optLocal:' - local', optNet:' - network',
@@ -402,15 +425,27 @@ tbody#demoBody tr td.no{background:#fdf0d0}
       demoOrig:'Original', demoSrc:'Reading: pronunciation string',
       demoReview:'Excluded from stats / import / export', demoNote:'Work log sample: first pass → revision → handover notes',
       verTitle:'Tool version',
-      verInfo:'Current version: v{v}. This is a single offline file. It never connects automatically and your data stays in this browser only.',
+      verInfo:'Current version: v{v}. This tool works offline by default - preview, pronunciation, import / export and the delivery report all work without a connection. It connects only when you click the button below, and only reads version info and the new file; your table data is never uploaded.',
       verCheck:'Check for a newer version (requires internet)',
       verCancel:'Cancel',
-      verNotConfigured:'No version URL is configured yet, so no connection was made.'
+      verNotConfigured:'No version URL is configured yet, so no connection was made.',
+      verChecking:'Reading the latest version info...',
+      verCurrent:'Current version: v{v}',
+      verLatest:'Latest version: v{v}',
+      verHasNew:'A newer version is available. Use the button below to download it straight to this machine.',
+      verUpToDate:'You already have the latest version. You can still re-download a clean copy.',
+      verDownload:'Download latest',
+      verDownloading:'Downloading the new file...',
+      verDone:'Saved to your browser download folder. Export a JSON backup first, then replace the old file with the new one; your data carries over.',
+      verFail:'Could not reach the version server (you may be offline). Nothing on this machine was changed; please try again later.',
+      verDownloadFail:'Download failed. Nothing on this machine was changed; please try again later.',
+      verClose:'Close',
+      verRetry:'Retry'
     },
     ko: {
       title:'중국어 안내문 · TTS 시청 및 발음 교정표',
       h1:'중국어 안내문 · TTS 시청 및 발음 교정표',
-      sub:'오프라인 단일 파일 · 193행 줄별 시청 / 발음 교정으로 읽기 변경 / 검수 잠금으로 오작동 방지 · 데이터는 이 브라우저에만 저장되며 업로드되지 않음',
+      sub:'로컬 단일 파일 · 기본 오프라인 · 193행 줄별 시청 / 발음 교정으로 읽기 변경 / 검수 잠금으로 오작동 방지 · 데이터는 이 브라우저에만 저장되며 업로드되지 않음',
       langTitle:'인터페이스 언어',
       noticeSummary:'사용 안내 · 발음 교정 / 검수 잠금 (펼치기)<span class="fold-hint">표 머리 아래 별도 예시 행 있음 · ♀ 여 버튼으로 바로 시청</span>',
       noticeBody:'<b>발음 교정이 시청 읽기를 바꾸는 원리:</b> 브라우저 음성 합성은 전달받은 텍스트만 읽으며, 특정 글자의 읽기를 지정하는 API가 없습니다. 병음·발음 표기·메모는 소리를 바꾸지 못합니다.<br>'+
@@ -443,7 +478,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
         '<code>华|huà|华山</code>　<code>燕|yān|燕京</code>　<code>厦|xià|厦门</code>　<code>乐|yuè|音乐</code> / <code>乐|lè|快乐</code><br>'+
         '<span style="color:var(--warn)">숫자 읽기: 전화번호에서 <b>1</b>은 「幺 yāo」, <b>0</b>은 「洞 dòng」으로 읽는 경우가 많고 <b>110</b>은 「一百一十」가 아니라 「幺幺零」입니다. 안내문은 아라비아 숫자만 쓰지 말고 구어체로 작성해야 합니다.</span><br>'+
         '<span style="color:var(--muted)">로마자 잔여물(Incheon / Myeongdong 등)은 중국어 관용 지명으로 바꿔야 합니다. 그렇지 않으면 중국어 TTS가 중국어 발음으로 억지로 읽어 바로 티가 납니다.</span>',
-      footer:'이 파일은 연락처·외부 링크·외부 리소스가 없는 로컬 교정 도구이며, 모든 스타일과 스크립트가 인라인으로 포함되어 오프라인에서도 작동합니다.<br>'+
+      footer:'이 도구는 모든 스타일·스크립트가 인라인으로 포함되어 기본적으로 오프라인에서 작동하며, 시청 / 발음 교정 / 가져오기·내보내기 / 납품 보고서는 인터넷 없이 사용할 수 있습니다. 페이지 하단 버전 번호의 「새 버전 확인」을 직접 누를 때만 연결되고 버전 정보와 새 파일만 읽으며 표 데이터는 절대 업로드하지 않습니다.<br>'+
         '시청은 브라우저 내장 음성 합성을 사용합니다. 「로컬」 표시 음성은 이 기기에서 합성되며, 「네트워크」 표시 음성을 선택하면 텍스트가 브라우저를 통해 음성 서비스로 전송될 수 있으니 민감한 내용을 붙여넣지 마세요.<br>'+
         '데이터는 이 브라우저의 localStorage에 자동 저장됩니다. 브라우저 변경 / 캐시 삭제 전에 「JSON 백업 내보내기」를 먼저 사용하세요. 계약 체결 후 납품은 Upwork workroom을 통해 업로드하세요.',
       optAuto:'자동 (이름으로 판단)', optLocal:' · 로컬', optNet:' · 네트워크',
@@ -483,10 +518,22 @@ tbody#demoBody tr td.no{background:#fdf0d0}
       demoOrig:'원문', demoSrc:'현재 읽기: 교정 문자열',
       demoReview:'통계 / 가져오기 / 내보내기 제외', demoNote:'작업 기록 예시: 초교 → 2차 수정 → 인계 메모',
       verTitle:'도구 버전',
-      verInfo:'현재 버전 v{v}. 이 도구는 오프라인 단일 파일이며 자동으로 연결되지 않고 데이터는 이 브라우저에만 저장됩니다.',
+      verInfo:'현재 버전 v{v}. 이 도구는 기본적으로 오프라인에서 작동합니다(시청 / 발음 교정 / 가져오기·내보내기 / 납품 보고서 모두 인터넷 없이 사용 가능). 아래 「새 버전 확인」을 누를 때만 연결되며 버전 정보와 새 파일만 읽고 표 데이터는 절대 업로드하지 않습니다.',
       verCheck:'새 버전 확인 (인터넷 필요)',
       verCancel:'취소',
-      verNotConfigured:'버전 주소가 아직 설정되지 않아 연결하지 않았습니다.'
+      verNotConfigured:'버전 주소가 아직 설정되지 않아 연결하지 않았습니다.',
+      verChecking:'최신 버전 정보를 읽는 중…',
+      verCurrent:'현재 버전 v{v}',
+      verLatest:'최신 버전 v{v}',
+      verHasNew:'새 버전이 있습니다. 아래 버튼으로 이 기기에 바로 다운로드하세요.',
+      verUpToDate:'이미 최신 버전입니다. 깨끗한 사본을 다시 받을 수도 있습니다.',
+      verDownload:'⬇ 최신 버전 다운로드',
+      verDownloading:'새 파일을 다운로드하는 중…',
+      verDone:'브라우저 다운로드 폴더에 저장되었습니다. 먼저 「JSON 백업 내보내기」를 한 뒤 새 파일로 교체하세요. 데이터는 그대로 유지됩니다.',
+      verFail:'버전 서버에 연결할 수 없습니다(오프라인일 수 있음). 이 기기의 파일은 변경되지 않았으니 나중에 다시 시도하세요.',
+      verDownloadFail:'다운로드에 실패했습니다. 이 기기의 파일은 변경되지 않았으니 나중에 다시 시도하세요.',
+      verClose:'닫기',
+      verRetry:'다시 시도'
     }
   };
 
@@ -1226,13 +1273,19 @@ tbody#demoBody tr td.no{background:#fdf0d0}
     document.getElementById('maleVoice').value = state.settings.male || '';
   }
 
-  // ---- 版本面板：纯本地两态（info / result），无联网入口 ----
+  // ---- 版本面板：默认离线；只有用户主动点「查看新版本 / 下载」才会联网 ----
+  // 唯一联网目标是上面两个公开只读静态文件：GET、无请求体、不带表格数据、不上传。
+  // 8 秒超时 + 全程失败兜底；客户交付报告是纯导出物，不参与这里任何逻辑。
   function closeVerPanel(){
     var p = document.getElementById('verPanel'), b = document.getElementById('verBack');
     if(p) p.remove();
     if(b) b.remove();
   }
-  function renderVerPanel(mode){
+  function vbtn(act, label, cls){
+    return '<button type="button" data-ver="' + act + '"' + (cls ? ' class="' + cls + '"' : '') + '>' + escHtml(label) + '</button>';
+  }
+  function renderVerPanel(mode, data){
+    data = data || {};
     closeVerPanel();
     var back = document.createElement('div');
     back.className = 'verback'; back.id = 'verBack';
@@ -1240,25 +1293,94 @@ tbody#demoBody tr td.no{background:#fdf0d0}
     var p = document.createElement('div');
     p.className = 'verpanel'; p.id = 'verPanel';
     p.setAttribute('role', 'dialog');
-    var html = '<h3>' + escHtml(t('verTitle')) + '</h3>';
+    var html = '<h3>' + escHtml(t('verTitle')) + '</h3>', btns = '';
     if(mode === 'info'){
       html += '<p>' + escHtml(t('verInfo', { v: TOOL_VERSION })) + '</p>';
-      html += '<div class="verbtns"><button type="button" data-ver="cancel">' + escHtml(t('verCancel')) + '</button>'
-            + '<button type="button" class="primary" data-ver="check">' + escHtml(t('verCheck')) + '</button></div>';
-    }else{
+      btns = vbtn('cancel', t('verCancel')) + vbtn('check', t('verCheck'), 'primary');
+    }else if(mode === 'checking'){
+      html += '<p>' + escHtml(t('verChecking')) + '</p>';
+      btns = vbtn('cancel', t('verCancel'));
+    }else if(mode === 'result'){
+      html += '<div class="vermeta">'
+            + escHtml(t('verCurrent', { v: TOOL_VERSION })) + '<br>'
+            + escHtml(t('verLatest', { v: data.latest || '-' })) + '</div>';
+      html += '<p>' + (data.hasNew
+            ? '<span class="ver-new">' + escHtml(t('verHasNew')) + '</span>'
+            : '<span class="ver-ok">' + escHtml(t('verUpToDate')) + '</span>') + '</p>';
+      btns = vbtn('cancel', t('verClose')) + vbtn('download', t('verDownload'), 'primary dl');
+    }else if(mode === 'downloading'){
+      html += '<p>' + escHtml(t('verDownloading')) + '</p>';
+      btns = vbtn('cancel', t('verCancel'));
+    }else if(mode === 'done'){
+      html += '<p>' + escHtml(t('verDone')) + '</p>';
+      btns = vbtn('cancel', t('verClose'));
+    }else if(mode === 'unconfigured'){
       html += '<p>' + escHtml(t('verNotConfigured')) + '</p>';
-      html += '<div class="verbtns"><button type="button" data-ver="cancel">' + escHtml(t('verCancel')) + '</button></div>';
+      btns = vbtn('cancel', t('verCancel'));
+    }else{ // fail / downloadfail
+      html += '<p>' + escHtml(mode === 'downloadfail' ? t('verDownloadFail') : t('verFail')) + '</p>';
+      btns = vbtn('cancel', t('verClose')) + vbtn('check', t('verRetry'), 'primary');
     }
+    if(btns) html += '<div class="verbtns">' + btns + '</div>';
     p.innerHTML = html;
     document.body.appendChild(back);
     document.body.appendChild(p);
     p.addEventListener('click', function(e){
       var b2 = e.target.closest('button[data-ver]');
-      if(!b2) return;
+      if(!b2 || b2.disabled) return;
       var act = b2.getAttribute('data-ver');
       if(act === 'cancel'){ closeVerPanel(); return; }
-      if(act === 'check'){ renderVerPanel('result'); return; }
+      if(act === 'check'){ startCheck(); return; }
+      if(act === 'download'){ startDownload(); return; }
     });
+  }
+  // 带超时的只读 GET：8 秒后主动断开，避免断网 / 代理不通时面板一直转
+  function fetchTimed(url, ms){
+    var ctl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+    var timer = ctl ? setTimeout(function(){ ctl.abort(); }, ms) : null;
+    return fetch(url, { cache:'no-store', signal: ctl ? ctl.signal : undefined })
+      .then(function(r){
+        if(timer) clearTimeout(timer);
+        if(!r.ok) throw new Error('HTTP ' + r.status);
+        return r;
+      }, function(e){
+        if(timer) clearTimeout(timer);
+        throw e;
+      });
+  }
+  // 逐段比较 x.y.z；非法字符由调用方正则先挡掉
+  function cmpVer(a, b){
+    var x = String(a || '').split('.').map(Number), y = String(b || '').split('.').map(Number);
+    for(var i = 0; i < Math.max(x.length, y.length); i++){
+      var d = (x[i] || 0) - (y[i] || 0);
+      if(d > 0) return 1;
+      if(d < 0) return -1;
+    }
+    return 0;
+  }
+  // 只读取版本号：不解析 / 执行远端内容，不拼用户输入进 URL
+  function startCheck(){
+    if(!VERSION_JSON_URL){ renderVerPanel('unconfigured'); return; }
+    renderVerPanel('checking');
+    fetchTimed(VERSION_JSON_URL, CHECK_TIMEOUT_MS)
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        var latest = (d && typeof d.version === 'string') ? d.version.trim() : '';
+        if(!/^\d+(\.\d+)*$/.test(latest)) throw new Error('bad version.json');
+        renderVerPanel('result', { latest: latest, hasNew: cmpVer(latest, TOOL_VERSION) > 0 });
+      })
+      .catch(function(){ renderVerPanel('fail'); });
+  }
+  // 直接下载：取字节 -> Blob -> <a download>，落到浏览器默认下载目录；不打开网页、不登录
+  function startDownload(){
+    renderVerPanel('downloading');
+    fetchTimed(DOWNLOAD_URL, CHECK_TIMEOUT_MS)
+      .then(function(r){ return r.arrayBuffer(); })
+      .then(function(buf){
+        download('tts-review.html', buf, 'text/html;charset=utf-8');
+        renderVerPanel('done');
+      })
+      .catch(function(){ renderVerPanel('downloadfail'); });
   }
   var toolVerEl = document.getElementById('toolver');
   toolVerEl.textContent = 'Review sheet v' + TOOL_VERSION;
