@@ -150,6 +150,8 @@ tbody#demoBody tr td.no{background:#fdf0d0}
   .aifoot{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
   .aifoot button{padding:5px 14px;font-size:12px;cursor:pointer}
   .aiwarn{font-size:11.5px;color:var(--muted);line-height:1.6;margin:8px 0}
+  .aimodal .ainote{margin-top:10px;padding-top:8px;border-top:1px solid var(--line);
+    font-size:10.5px;line-height:1.6;color:var(--muted)}
   .aierr{color:#a33;font-size:12px;margin:6px 0}
 </style>
 </head>
@@ -280,7 +282,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
   var KEY = 'zh_tts_review_v1';
   // 显式版本号：写进工具 footer 与客户交付报告，便于追溯。版本真相源在本文件里，
   // 发布端的 version.json 只是「当前最新版是多少」的对外声明。
-  var TOOL_VERSION = '1.3.3';
+  var TOOL_VERSION = '1.3.4';
   // 联网目标只有公开成品库的只读静态文件及其只读镜像。只有用户主动点「查看新版本 / 下载」
   // 才会请求；均为 GET、无请求体、不携带表格数据、不带凭据，绝不上传任何内容。
   var REPO = 'gaicn/tts-review-sheet';
@@ -293,12 +295,16 @@ tbody#demoBody tr td.no{background:#fdf0d0}
     'https://fastly.jsdelivr.net/gh/' + REPO + '@main/version.json',
     'https://raw.githubusercontent.com/' + REPO + '/main/version.json'
   ];
-  // 下载源：优先按版本 tag 精确取（内容不可变），CDN / raw 依次兜底；第一个可用字节即采用。
+  // 下载源：优先按版本 tag 精确取（内容不可变），CDN / raw 依次兜底；
+  // GitHub Contents API 作最后兜底——只认 api.github.com 的出口也能完成升级。
+  // 第一个「内嵌版本 >= 目标版本」的字节即采用，滞后的 CDN 缓存一概丢弃。
   var DOWNLOAD_URL = 'https://cdn.jsdelivr.net/gh/' + REPO + '@main/tts-review.html';
+  var API_HTML_URL = 'https://api.github.com/repos/' + REPO + '/contents/tts-review.html?ref=main';
   var DOWNLOAD_SOURCES = [
     DOWNLOAD_URL,
     'https://fastly.jsdelivr.net/gh/' + REPO + '@main/tts-review.html',
-    'https://raw.githubusercontent.com/' + REPO + '/main/tts-review.html'
+    'https://raw.githubusercontent.com/' + REPO + '/main/tts-review.html',
+    API_HTML_URL
   ];
   var CHECK_TIMEOUT_MS = 12000;   // 单个源的超时；多源并行，总耗时不超过它
   var latestVer = '';             // 最近一次成功读到的最新版本号，用于拼 tag 下载源
@@ -1009,7 +1015,8 @@ tbody#demoBody tr td.no{background:#fdf0d0}
       nativeOnly:'面向母语人工审核人员；文字与发音的正确性由人最终判定。AI 只提供候选答案、可信度与权威性参考，不替人做决定。',
       noticeBody:'<b>适用对象：</b>母语人工审核人员逐行核对可交付译文与发音是否正确。可选启用 AI 辅助交叉核对候选答案；<b>最终答案由人选定</b>，AI 输出仅供参考，不自动写入表格。<br>',
       footer:'本文件默认离线可用，所有样式与脚本均内联；译文审校 / 校音 / 导入导出 / 交付报告断网照常。点「查看新版本」只读版本信息与新版文件；<b>启用 AI 辅助时</b>，才会把当前这一行的源文与当前译文 / 校音发往你自填的接口。endpoint / model / key 只存本机，不上传整表、备注或审核标记，也不打开任何网站。<br>',
-      aiSettings:'⚙ AI 设置', aiOpen:'AI 辅助', aiOpenTitle:'打开本行的 AI 辅助工作区（译文与校音合并处理）'
+      aiSettings:'⚙ AI 设置', aiOpen:'AI 辅助', aiOpenTitle:'打开本行的 AI 辅助工作区（译文与校音合并处理）',
+      aiFreeNote:'主流 AI 模型厂商多提供带免费额度的模型。请自行前往其官方平台注册并申请 API key，再填入上方；本工具不推荐厂商、不代申请、不内置任何接口地址或密钥，也不参与你的账号、用量与计费。免费额度与可用性以厂商官方说明为准。'
     },
     en:{
       h1:'Multilingual Translation & Pronunciation - AI-Assisted Manual Review Sheet',
@@ -1017,7 +1024,8 @@ tbody#demoBody tr td.no{background:#fdf0d0}
       nativeOnly:'For native-speaker human reviewers. Correctness of wording and pronunciation is finally judged by a human; AI only offers candidate answers, confidence and authority hints and never decides for you.',
       noticeBody:'<b>Who this sheet is for:</b> native-speaker human reviewers check, line by line, whether the deliverable translation and its pronunciation are correct. An optional AI cross-check may suggest candidates; <b>the human picks the final answer</b> and AI output is advisory only, never written to the sheet automatically.<br>',
       footer:'This file works offline by default with all styles and scripts inline; review, pronunciation, import / export and delivery reports need no network. "Check for a newer version" only reads version info and the new file; <b>enabling AI assistance</b> sends only this one row\'s source text and current translation / pronunciation string to the endpoint you configured. Endpoint / model / key stay on this machine - no full table, notes or review flags are uploaded, and no website is opened.<br>',
-      aiSettings:'AI settings', aiOpen:'AI assist', aiOpenTitle:'Open the AI-assisted workspace for this row (translation and pronunciation handled together)'
+      aiSettings:'AI settings', aiOpen:'AI assist', aiOpenTitle:'Open the AI-assisted workspace for this row (translation and pronunciation handled together)',
+      aiFreeNote:'Most mainstream AI model providers offer models with a free tier. Please register and apply for an API key on their official platform, then enter it above. This tool does not recommend providers, does not apply on your behalf, embeds no endpoint or key, and takes no part in your account, usage or billing. Free-tier terms and availability are set by each provider.'
     },
     ko:{
       h1:'다국어 번역·발음 · AI 보조 수동 검수 시트',
@@ -1025,7 +1033,8 @@ tbody#demoBody tr td.no{background:#fdf0d0}
       nativeOnly:'모국어 인공 검수자용. 문구와 발음의 정확성은 최종적으로 사람이 판단하며, AI는 후보 답안·신뢰도·권위 정보만提供参考하고 사람을 대신해 결정하지 않습니다.',
       noticeBody:'<b>사용 대상:</b> 모국어 인공 검수자가 줄마다 납품 번역과 발음이 올바른지 확인합니다. 선택적으로 AI 교차 확인이 후보를 제안할 수 있으나, <b>최종 답안은 사람이 선택</b>하며 AI 출력은 참고용으로만 쓰이고 표에 자동 반영되지 않습니다.<br>',
       footer:'이 파일은 기본적으로 오프라인에서 작동하며 모든 스타일·스크립트가 인라인입니다. 「새 버전 확인」은 버전 정보와 새 파일만 읽습니다. <b>AI 보조를 켤 때만</b> 현재 줄의 원문과 현재 번역 / 발음 문자열을 직접 입력한 endpoint로 보냅니다. endpoint / model / key는 이 기기에만 저장되며 표 전체·비고·검수 표시는 업로드하지 않고 웹사이트도 열지 않습니다.<br>',
-      aiSettings:'AI 설정', aiOpen:'AI 보조', aiOpenTitle:'이 줄의 AI 보조 작업공간 열기 (번역과 발음 함께 처리)'
+      aiSettings:'AI 설정', aiOpen:'AI 보조', aiOpenTitle:'이 줄의 AI 보조 작업공간 열기 (번역과 발음 함께 처리)',
+      aiFreeNote:'주요 AI 모델 제공사 대부분은 무료 할당량이 있는 모델을 제공합니다. 해당 공식 플랫폼에서 직접 가입하고 API 키를 발급받은 뒤 위에 입력하세요. 이 도구는 제공사를 추천하거나 대신 신청하지 않으며, 어떤 엔드포인트·키도 내장하지 않고 계정·사용량·과금에 관여하지 않습니다. 무료 할당량과 이용 가능 여부는 각 제공사의 정책을 따릅니다.'
     }
   };
   Object.keys(AI_WORDING).forEach(function(l){ if(I18N[l]) Object.assign(I18N[l], AI_WORDING[l]); });
@@ -1712,6 +1721,15 @@ tbody#demoBody tr td.no{background:#fdf0d0}
     var m = s.match(/TOOL_VERSION\s*=\s*'([^']+)'/);
     return m ? m[1] : '';
   }
+  // GitHub Contents API 返回的是包着 base64 的 JSON，不是原始文件字节；解码还原后再校验版本
+  function decodeApiBuf(buf){
+    var d = JSON.parse(bufHeadText(buf, buf.byteLength));
+    if(!d || typeof d.content !== 'string') throw new Error('bad api payload');
+    var bin = atob(d.content.replace(/\s/g, ''));
+    var u = new Uint8Array(bin.length), i;
+    for(i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+    return u.buffer;
+  }
   // 并行只读 GET 下载源；只采用内嵌版本 >= 目标版本的字节，滞后的 CDN 缓存一概丢弃
   function fetchFirstBuf(urls, ms, minVer){
     return new Promise(function(resolve, reject){
@@ -1721,6 +1739,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
         fetchTimed(u, ms)
           .then(function(r){ return r.arrayBuffer(); })
           .then(function(buf){
+            if(u.indexOf('api.github.com') >= 0) buf = decodeApiBuf(buf);
             left--;
             var v = (buf && buf.byteLength > 1000) ? extractVer(bufHeadText(buf, 65536)) : '';
             var ok = !!v && (!minVer || cmpVer(v, minVer) >= 0);
@@ -1853,6 +1872,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
     var box = aiModal('<h3>AI 设置 / AI settings</h3>'
       + '<div class="aiwarn">Endpoint / model / key are saved only in this browser\'s localStorage. They are not written into the file or the client delivery report. '
       + 'A network request happens ONLY when you click "Send / 发送并分析", and it sends only the current row.</div>'
+      + '<div class="ainote">' + escHtml(t('aiFreeNote')) + '</div>'
       + '<div class="airow"><label>接口地址 Endpoint (OpenAI compatible)</label><input id="aiEp" spellcheck="false" value="'+escHtml(c.endpoint||'')+'" placeholder="https://api.openai.com/v1"></div>'
       + '<div class="airow"><label>模型 Model</label><input id="aiModel" spellcheck="false" value="'+escHtml(c.model||'')+'" placeholder="gpt-4o-mini"></div>'
       + '<div class="airow"><label>API Key (只存本机 / local only)</label><input id="aiKey" type="password" value="'+escHtml(c.key||'')+'"></div>'
