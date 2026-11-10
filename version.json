@@ -1,6 +1,6 @@
 {
-  "version": "1.2.1",
+  "version": "1.2.2",
   "file": "tts-review.html",
   "released": "2026-11-11",
-  "notes": "Offline-friendly version panel: if the check cannot reach the server, the current version and an explicit \"latest version unavailable\" state are still shown; 20s timeout. Extended UI languages synced to the multilingual-delivery wording."
+  "notes": "Reliable opt-in networking: version is read from multiple read-only sources (GitHub API + CDN mirrors) and the highest version wins; downloads prefer an immutable version tag. Offline by default; never uploads table data."
 }
