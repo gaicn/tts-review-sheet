@@ -1,6 +1,6 @@
 {
-  "version": "1.2.0",
+  "version": "1.2.1",
   "file": "tts-review.html",
   "released": "2026-11-11",
-  "notes": "Multilingual delivery (19 languages), native-speaker human reviewers only. Offline by default; opt-in version check and one-click download."
+  "notes": "Offline-friendly version panel: if the check cannot reach the server, the current version and an explicit \"latest version unavailable\" state are still shown; 20s timeout. Extended UI languages synced to the multilingual-delivery wording."
 }
