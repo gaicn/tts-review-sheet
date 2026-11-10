@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title data-i18n="title">中文播报文稿 · TTS 审听与校音表</title>
+<title data-i18n="title">多语言译文与发音 · 人工审核表</title>
 <style>
 :root{
   --bg:#f5f7fa; --panel:#ffffff; --ink:#1c2430; --muted:#6b7684;
@@ -15,6 +15,7 @@ body{margin:0;padding:16px 18px 40px;background:var(--bg);color:var(--ink);
   font:14px/1.5 "Microsoft YaHei","PingFang SC","Malgun Gothic","Meiryo","Myanmar Text","Khmer UI","Leelawadee UI","Segoe UI",Arial,sans-serif}
 h1{font-size:19px;margin:0 0 4px;padding-right:230px}
 .sub{margin:0 0 12px;color:var(--muted);font-size:12.5px}
+.dl-hint{font-size:11.5px;color:var(--muted);line-height:1.5;flex:1 1 320px}
 #langSwitch{position:absolute;top:14px;right:18px;z-index:6}
 #langSelect{font:inherit;font-size:12px;padding:5px 8px;border:1px solid var(--line);
   border-radius:7px;background:var(--panel);color:var(--ink);max-width:200px}
@@ -43,6 +44,8 @@ body.locked-all .lock-bar{display:block}
   padding:8px 10px;margin:0 0 10px;line-height:1.9}
 .verpanel .ver-ok{color:var(--ok);font-weight:600}
 .verpanel .ver-new{color:var(--warn);font-weight:600}
+.verpanel .vernote{margin-top:12px;padding-top:9px;border-top:1px solid var(--line);
+  font-size:10.5px;line-height:1.6;color:var(--muted)}
 .author a{color:var(--accent)}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:11px 13px;margin-bottom:11px}
 .notice-fold{background:#eef5ff;border:1px solid #c9dcff;border-radius:8px;margin-bottom:11px}
@@ -141,8 +144,15 @@ tbody#demoBody tr td.no{background:#fdf0d0}
 </div>
 <div class="lock-bar" id="lockBar" data-i18n="lockBar">🔒 全局已锁定 · 点顶部「解锁」后方可编辑</div>
 
-<h1 data-i18n="h1">中文播报文稿 · TTS 审听与校音表</h1>
-<p class="sub" data-i18n="sub">本地单文件工具 · 默认离线可用 · 193 行逐行试读 / 校音改变读音 / 审核锁定防误碰 · 数据只存本机浏览器，不上传</p>
+<h1 data-i18n="h1">多语言译文与发音 · 人工审核表</h1>
+<p class="sub" data-i18n="sub">地名 / 名词 / 短语等的可交付正确译文 + 正确发音 · 逐行人工审核留痕 · 仅供母语人工审核人员使用 · 数据只存本机，不上传</p>
+
+<div class="panel" id="dlBar">
+  <div class="row">
+    <label><b data-i18n="lblDeliveryLang">交付语言（本次审核的目标语种）</b> <select id="deliveryLang"></select></label>
+    <span class="dl-hint" data-i18n="deliveryHint">切换后交付列名、本机试听语种、客户交付报告标注同步变化；表格数据不变。本工具不生成译文，只记录母语审核人员的判断。</span>
+  </div>
+</div>
 
 <details class="notice-fold" id="noticeFold">
   <summary data-i18n-html="noticeSummary">使用说明 · 校音怎么改变读音 / 审核锁定（点开看）<span class="fold-hint">第 1 行已填示范，可直接点 ♀ 女 试听</span></summary>
@@ -191,9 +201,9 @@ tbody#demoBody tr td.no{background:#fdf0d0}
   <thead>
     <tr>
       <th class="no" data-i18n-html="thNo">行号<small>源文对应<br>不可重排</small></th>
-      <th data-i18n-html="thEn">英文<small>原文原样粘贴<br>不改动</small></th>
-      <th data-i18n-html="thZh">中文（交付）<small>正式译文，一字不改<br>只保证文字正确</small></th>
-      <th data-i18n-html="thRead">校音试读串<small>留空=读中文 / 填了=读这格<br>改读音就改这里</small></th>
+      <th data-i18n-html="thEn">源文<small>原文原样粘贴<br>不改动</small></th>
+      <th data-i18n-html="thZh">译文（交付）<small>正式译文，一字不改<br>只保证文字正确</small></th>
+      <th data-i18n-html="thRead">校音试读串<small>留空=读译文 / 填了=读这格<br>改读音就改这里</small></th>
       <th data-i18n-html="thPlay">试听<small>♀ 女 / ♂ 男 / ■ 停<br>显示当前读哪格</small></th>
       <th data-i18n-html="thReview">人工审核<small>勾完成即整行锁定<br>取消勾选解锁</small></th>
       <th data-i18n-html="thNote">备注<small>工作备注 / 二次修订、人员留痕<br>纯文本，不参与校音</small></th>
@@ -232,9 +242,9 @@ tbody#demoBody tr td.no{background:#fdf0d0}
 </details>
 
 <footer data-i18n-html="footer">
-  本文件默认离线可用，所有样式与脚本均内联，审听 / 校音 / 导入导出 / 交付报告断网照常；只有你主动点页脚版本号里的「查看新版本」时才会联网，且只读取版本信息与新版文件，绝不上传表格内容。<br>
+  本文件默认离线可用，所有样式与脚本均内联，译文审校 / 校音 / 导入导出 / 交付报告断网照常；只有你主动点页脚版本号并点「查看新版本（需联网）」时才会联网，且只读取版本信息与新版文件，不上传表格内容，也不打开任何网站。<br>
   试听使用浏览器内置语音合成：标注「本地」的声线在本机合成；若选用标注「网络」的声线，文本可能由浏览器发送给语音服务，请勿粘贴敏感内容。<br>
-  数据自动保存在本浏览器 localStorage 中，换浏览器 / 清缓存前请先「导出 JSON 备份」。合同成立后如需交付，请经 Upwork workroom 上传。
+  本工具仅供母语人工审核人员使用，不生成机器译文，也不代替人工判断；数据自动保存在本浏览器 localStorage 中，换浏览器 / 清缓存前请先「导出 JSON 备份」。合同成立后如需交付，请经 Upwork workroom 上传。
 </footer>
 <div class="credit"><span class="author" data-i18n-html="authorLine"></span><span class="sep">·</span><svg class="mark" viewBox="0 0 64 64" width="13" height="13" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#12325c"/><g fill="#fff"><rect x="14" y="18" width="36" height="5" rx="2.5"/><rect x="14" y="30" width="28" height="5" rx="2.5"/><rect x="14" y="42" width="20" height="5" rx="2.5"/></g><circle cx="48" cy="44" r="6" fill="#4da3ff"/></svg><span class="toolver" id="toolver" role="button" tabindex="0"></span><span class="sep">·</span><span class="year">&copy; 2026</span></div>
 
@@ -244,13 +254,36 @@ tbody#demoBody tr td.no{background:#fdf0d0}
   var KEY = 'zh_tts_review_v1';
   // 显式版本号：写进工具 footer 与客户交付报告，便于追溯。版本真相源在本文件里，
   // 发布端的 version.json 只是「当前最新版是多少」的对外声明。
-  var TOOL_VERSION = '1.1.0';
+  var TOOL_VERSION = '1.2.0';
   // 唯一的两个联网目标：公开成品库里的只读静态文件。只有用户主动点「查看新版本 / 下载」
   // 才会请求；均为 GET、无请求体、不携带表格数据、不带凭据，绝不上传任何内容。
   var VERSION_JSON_URL = 'https://raw.githubusercontent.com/gaicn/tts-review-sheet/main/version.json';
   var DOWNLOAD_URL     = 'https://raw.githubusercontent.com/gaicn/tts-review-sheet/main/tts-review.html';
   var CHECK_TIMEOUT_MS = 8000;
   var DEFAULT_ROWS = 193;
+  // 交付语言（本次审核的目标语种），与「界面语言」互相独立。
+  // bcp47 用于本机 TTS 选声线 / 设置 utterance.lang；label 给非英文界面，en 给英文界面与客户报告。
+  var DELIVERY_LANGS = [
+    { code:'zh-CN', label:'简体中文', en:'Simplified Chinese', bcp47:'zh-CN' },
+    { code:'zh-TW', label:'繁體中文', en:'Traditional Chinese', bcp47:'zh-TW' },
+    { code:'en-US', label:'English',  en:'English',            bcp47:'en-US' },
+    { code:'ja-JP', label:'日本語',   en:'Japanese',           bcp47:'ja-JP' },
+    { code:'ko-KR', label:'한국어',   en:'Korean',             bcp47:'ko-KR' },
+    { code:'km-KH', label:'ភាសាខ្មែរ', en:'Khmer',              bcp47:'km-KH' },
+    { code:'fil-PH',label:'Filipino',en:'Filipino',           bcp47:'fil-PH' },
+    { code:'my-MM', label:'မြန်မာ',  en:'Burmese',            bcp47:'my-MM' },
+    { code:'mn-MN', label:'Монгол',  en:'Mongolian',          bcp47:'mn-MN' },
+    { code:'th-TH', label:'ไทย',     en:'Thai',               bcp47:'th-TH' },
+    { code:'vi-VN', label:'Tiếng Việt', en:'Vietnamese',      bcp47:'vi-VN' },
+    { code:'id-ID', label:'Bahasa Indonesia', en:'Indonesian',bcp47:'id-ID' },
+    { code:'es-ES', label:'Español', en:'Spanish',            bcp47:'es-ES' },
+    { code:'fr-FR', label:'Français',en:'French',             bcp47:'fr-FR' },
+    { code:'de-DE', label:'Deutsch', en:'German',             bcp47:'de-DE' },
+    { code:'pt-BR', label:'Português', en:'Portuguese',       bcp47:'pt-BR' },
+    { code:'ru-RU', label:'Русский', en:'Russian',            bcp47:'ru-RU' },
+    { code:'ar-SA', label:'العربية', en:'Arabic',             bcp47:'ar-SA' },
+    { code:'hi-IN', label:'हिन्दी',  en:'Hindi',              bcp47:'hi-IN' }
+  ];
   var FEMALE = /xiaoxiao|xiaoyi|huihui|yaoyao|tingting|hanhan|female|女/i;
   var MALE = /yunxi|yunjian|kangkang|liang|male|男/i;
 
@@ -772,12 +805,171 @@ tbody#demoBody tr td.no{background:#fdf0d0}
     csvHead: ['Дугаар','Англи','Хятад (хүргэлт)','Дуудлага засах мөр','Унших эх','Сонсох','Тэмдэглэл','Гараар шалгах'],
     flashDelivery: 'Харилцагчийн хүргэлтийн харагдцыг экспортлосон (Англи HTML)'
   });
+  // v1.2.0 定位升级覆盖层：多语言交付 + 母语人工审核。
+  // 原字典保持不动，只覆盖定位相关文案；{L}=交付语言本地名，{LE}=英文名（由 t() 自动注入）。
+  var OVERRIDE = {
+    zh: {
+      title:'多语言译文与发音 · 人工审核表',
+      h1:'多语言译文与发音 · 人工审核表',
+      sub:'地名 / 名词 / 短语等的可交付正确译文 + 正确发音 · 逐行人工审核留痕 · 仅供母语人工审核人员使用 · 数据只存本机，不上传',
+      lblDeliveryLang:'交付语言（本次审核的目标语种）',
+      deliveryHint:'切换后交付列名、本机试听语种、客户交付报告标注同步变化；表格数据不变。本工具不生成译文，只记录母语审核人员的判断。',
+      nativeOnly:'仅供母语人工审核人员使用：译文正确性与读音正确性由母语者人工判断，本工具不提供机器译文，也不代替人工判断。',
+      noticeSummary:'使用说明 · 多语言交付 / 校音 / 母语人工审核（点开看）<span class="fold-hint">表头下方是中文示范行</span>',
+      noticeBody:'<b>本表是给母语人工审核人员用的：</b>逐行核对可交付译文的文字是否正确、读音是否正确；判断与结论都由人工做出，本工具<b>不生成机器译文</b>，也不代替人工判断。<br>'+
+        '<b>校音怎么改变试听读音：</b>浏览器语音合成只认「送给它的那串文本」，没有「指定某个字读某个音」的接口，任何拼音、注音、标注都不会改变发音。<br>'+
+        '本表把校音做成 <b>「校音试读串」</b>——<b>只给本机 TTS 念的替身文本</b>：留空时试读念「{L}译文」格；一旦填入本语言的替字 / 口语形式（中文如 <code>重→崇</code>、<code>110→幺幺零</code>），试读<b>立刻改念这一格，读音当场就变</b>，而「{L}（交付）」格<b>一字不动</b>。试听列会显示当前读的是哪一格。<br>'+
+        '定稿后把「哪一行、哪个词、该怎么读」作为工作留痕写进「备注」列，再交给客户在他们自己的 TTS 管线里修词典 / SSML。<br>'+
+        '<b>表头下方是独立示范行（中文示例：重庆 → 崇庆）：</b>点 <code>♀ 女</code> 听校音后的读音 → 点「原文」听「重庆市」对比。<b>勾「人工审核完成」后整行立即锁定</b>（文本框与改动按钮全部禁用，避免误碰；试听只读仍可点），取消勾选即解锁；导入源文会跳过已锁定的行。示范行固定不动，不参与导入 / 导出 / 清空。',
+      cheatSummary:'中文多音字 / 数字读法速查（中文交付专用参考；其他语种由母语审核人员按本语言规则判断）',
+      thEn:'源文<small>原文原样粘贴<br>不改动</small>',
+      thZh:'{L}（交付）<small>正式译文，一字不改<br>只保证文字正确</small>',
+      thRead:'校音试读串<small>留空=读{L} / 填了=读这格<br>改读音就改这里</small>',
+      phEn:'源文原文',
+      phZh:'{L}译文（交付，不改）',
+      phRead:'留空=读{L}；填本语言替字 / 口语形式即改读音',
+      pastePh:'从 Excel / 表格复制后粘贴到这里：用 Tab 分隔，第 1 列源文、第 2 列{L}译文、第 3 列（可选）校音试读串。单列则只填译文。一行对应一个行号。',
+      importNote:'导入只覆盖「源文 / {L}译文 / 校音试读串」，不会清掉试听、备注和审核标记；<b>已人工审核锁定的行会被跳过</b>。',
+      btnCopyZh:'⧉ 取译文',
+      titleCopyZh:'把「{L}译文」复制过来当校音底稿',
+      btnDelivery:'导出客户交付视图',
+      btnDeliveryTitle:'生成给客户看的英文交付报告（标注当前交付语言）；备注列内容原样出现，请只写可对外的内容',
+      flashDelivery:'已导出客户交付视图（英文 HTML 报告，标注 {L}，不含校音串与内部标记）',
+      srcOn:'当前读：校音串', srcOff:'当前读：{L}',
+      csvSrcRead:'校音串', csvSrcZh:'{L}译文',
+      csvHead:['行号','源文','{L}（交付）','校音试读串','试读来源','试听','备注','人工审核完成'],
+      flashCopied:'已把「{L}译文」复制为校音底稿，改几个字即可改变试听读音',
+      flashClearedRead:'已清空校音串，试读恢复为「{L}译文」格',
+      flashImported:'已导入 {n} 行{skip}（源文 / {L}译文 / 校音串），备注与审核标记保留',
+      flashReady:'就绪：193 行空表，等待粘贴源文',
+      confirmClear:'确定清空全部内容吗？\n\n将清掉 193 行的源文、译文、校音试读串、备注、试听与审核标记，此操作不可撤销。\n建议先点「导出 JSON 备份」保存，再清空。\n\n表格会保留 193 个空行框架。',
+      flashClearedAll:'已清空全部内容，保留 193 个空行框架',
+      demoBadge:'中文示范',
+      demoTip:'中文示范：用同音字「崇」改变「重」的读音（其他语种请按本语言规则填写）',
+      demoSrc:'当前读：校音串（中文示范）',
+      footer:'本文件默认离线可用，所有样式与脚本均内联，译文审校 / 校音 / 导入导出 / 交付报告断网照常；只有你主动点页脚版本号并点「查看新版本（需联网）」时才会联网，且只读取版本信息与新版文件，不上传表格内容，也不打开任何网站。<br>'+
+        '试听使用浏览器内置语音合成：标注「本地」的声线在本机合成；若选用标注「网络」的声线，文本可能由浏览器发送给语音服务，请勿粘贴敏感内容。<br>'+
+        '本工具仅供母语人工审核人员使用，不生成机器译文，也不代替人工判断；数据自动保存在本浏览器 localStorage 中，换浏览器 / 清缓存前请先「导出 JSON 备份」。合同成立后如需交付，请经 Upwork workroom 上传。',
+      verInfo:'当前版本 v{v}。',
+      verNote:'默认离线可用：译文审校 / 校音 / 导入导出 / 交付报告断网照常。点「查看新版本」才会联网，只读取版本信息与新版文件，不上传表格内容，也不打开任何网站。',
+      verCheck:'查看新版本（需联网）',
+      flashDeliveryLang:'交付语言已切换为 {L}'
+    },
+    en: {
+      title:'Multilingual Translation & Pronunciation - Manual Review Sheet',
+      h1:'Multilingual Translation & Pronunciation - Manual Review Sheet',
+      sub:'Deliverable correct translations and correct pronunciation for place names, nouns and phrases - line-by-line manual review log - for native-speaker human reviewers only - data stays on this machine, never uploaded',
+      lblDeliveryLang:'Delivery language (target language for this review)',
+      deliveryHint:'Switching updates the delivery column, the local preview voice language and the client report label; your table data is unchanged. This tool does not generate translations - it records the judgement of a native-speaker reviewer.',
+      nativeOnly:'For native-speaker human reviewers only. Correctness of wording and pronunciation is judged by a human native speaker; this tool produces no machine translation and does not replace human judgement.',
+      noticeSummary:'How to use - multilingual delivery / pronunciation / native-speaker review (click to open)<span class="fold-hint">The demo row under the header is a Chinese example</span>',
+      noticeBody:'<b>Who this sheet is for:</b> native-speaker human reviewers check, line by line, whether the deliverable translation and its pronunciation are correct. All judgements are made by a human; this tool <b>produces no machine translation</b> and does not replace human judgement.<br>'+
+        '<b>How the pronunciation string changes the preview:</b> browser speech synthesis only reads the exact string it is given; there is no API to "make this word sound like that". Pinyin, phonetic notes and annotations never change the pronunciation.<br>'+
+        'This sheet uses a <b>"Pronunciation string"</b> - <b>a stand-in text read only by your local TTS</b>: leave it empty and the preview reads the "{L} translation" cell; once you enter a stand-in spelling or spoken form in this language (for Chinese, e.g. <code>重→崇</code>, <code>110→幺幺零</code>), the preview <b>instantly reads this cell instead</b>, while the "{L} (delivery)" cell <b>stays untouched</b>. The Preview column shows which cell is being read.<br>'+
+        'When finalized, record "which line, which word, which reading" in the Notes column as a work log and hand it to the client to fix their dictionary / SSML in their own TTS pipeline.<br>'+
+        '<b>The demo row under the header is a Chinese example (重庆 → 崇庆):</b> click <code>♀ F</code> for the adjusted reading, then "Original" to compare. <b>Checking "Manual review done" locks the whole row immediately</b> (text boxes and edit buttons disabled; preview stays clickable as read-only), uncheck to unlock; importing skips locked rows. The demo row is fixed and excluded from import / export / clear.',
+      cheatSummary:'Chinese polyphonic characters / number readings (Chinese-delivery reference only; for other languages the native-speaker reviewer applies that language\'s rules)',
+      thEn:'Source text<small>paste as-is<br>do not edit</small>',
+      thZh:'{L} (delivery)<small>final translation, unchanged<br>only wording correctness</small>',
+      thRead:'Pronunciation string<small>empty = read {L} / filled = read this cell<br>change the reading here</small>',
+      phEn:'Source text',
+      phZh:'{L} translation (delivery, unchanged)',
+      phRead:'empty = read {L}; enter a stand-in spelling / spoken form in this language to change the reading',
+      pastePh:'Paste from Excel / a table, Tab-separated: column 1 = source text, column 2 = {L} translation, column 3 (optional) = pronunciation string. A single column fills the translation only. One line per row number.',
+      importNote:'Import overwrites "source / {L} translation / pronunciation string" only; preview, notes and review marks are kept. <b>Rows already reviewed and locked are skipped.</b>',
+      btnCopyZh:'⧉ Copy translation',
+      titleCopyZh:'Copy the "{L} translation" as a pronunciation draft',
+      btnDelivery:'Export client delivery view',
+      btnDeliveryTitle:'Generate an English delivery report for the client (labelled with the current delivery language); Notes are included verbatim, so keep them client-safe',
+      flashDelivery:'Client delivery view exported (English HTML report, labelled {L}, no pronunciation strings or internal flags)',
+      srcOn:'Reading: pronunciation string', srcOff:'Reading: {L}',
+      csvSrcRead:'Pronunciation string', csvSrcZh:'{L} translation',
+      csvHead:['No.','Source','{L} (delivery)','Pronunciation string','Read source','Preview','Notes','Manual review done'],
+      flashCopied:'Copied the "{L} translation" as a pronunciation draft - edit a few characters to change the preview reading',
+      flashClearedRead:'Pronunciation string cleared; preview reads the "{L} translation" cell again',
+      flashImported:'Imported {n} rows{skip} (source / {L} translation / pronunciation string); notes and review marks kept',
+      flashReady:'Ready: 193 empty rows, waiting for source text',
+      confirmClear:'Clear all content?\n\nThis removes source text, translations, pronunciation strings, notes, preview and review marks for all 193 rows. This cannot be undone.\nExport a JSON backup first.\n\nThe 193 empty row frames remain.',
+      flashClearedAll:'All content cleared; 193 empty rows kept',
+      demoBadge:'Chinese demo',
+      demoTip:'Chinese example: the homophone 崇 changes the reading of 重 (for other languages follow that language\'s rules)',
+      demoSrc:'Reading: pronunciation string (Chinese example)',
+      footer:'This file works offline by default: all styles and scripts are inline, and translation review / pronunciation / import-export / delivery reports work without a network. Only when you click the footer version badge and then "Check for a newer version (requires internet)" does it go online - it reads only version info and the new file, never uploads table data, and opens no website.<br>'+
+        'Preview uses browser built-in speech synthesis: voices marked "local" are synthesized on this machine; if you pick a voice marked "network", the text may be sent by the browser to a speech service - do not paste sensitive content.<br>'+
+        'For native-speaker human reviewers only; this tool produces no machine translation and does not replace human judgement. Data is saved in this browser\'s localStorage - export a JSON backup before switching browser or clearing cache. Deliver via the Upwork workroom after a contract is in place.',
+      verInfo:'Current version: v{v}.',
+      verNote:'Offline by default: translation review, pronunciation, import / export and delivery reports need no network. "Check for a newer version" connects once, reads only version info and the new file, never uploads table data, and opens no website.',
+      verCheck:'Check for a newer version (requires internet)',
+      flashDeliveryLang:'Delivery language switched to {L}'
+    },
+    ko: {
+      title:'다국어 번역·발음 · 수동 검수 시트',
+      h1:'다국어 번역·발음 · 수동 검수 시트',
+      sub:'지명 / 명사 / 구문의 납품 가능한 올바른 번역 + 올바른 발음 · 줄별 수동 검수 기록 · 모국어 수동 검수자 전용 · 데이터는 이 기기에만 저장',
+      lblDeliveryLang:'납품 언어 (이번 검수의 대상 언어)',
+      deliveryHint:'바꾸면 납품 열 이름, 로컬 미리듣기 음성 언어, 고객 납품 보고서 표기가 함께 바뀌며 표 데이터는 그대로입니다. 이 도구는 번역을 생성하지 않고 모국어 검수자의 판단만 기록합니다.',
+      nativeOnly:'모국어 수동 검수자 전용: 번역과 발음의 정확성은 모국어 화자가 사람이 판단합니다. 이 도구는 기계 번역을 만들지 않으며 사람의 판단을 대신하지 않습니다.',
+      noticeSummary:'사용법 · 다국어 납품 / 발음 교정 / 모국어 검수 (열기)<span class="fold-hint">표 아래 예시 행은 중국어 예시입니다</span>',
+      noticeBody:'<b>이 시트는 모국어 수동 검수자용입니다:</b> 납품 번역의 문자와 발음이 올바른지 줄마다 사람이 확인합니다. 이 도구는 <b>기계 번역을 생성하지 않으며</b> 사람의 판단을 대신하지 않습니다.<br>'+
+        '<b>발음 교정 문자열이 미리듣기를 바꾸는 원리:</b> 브라우저 음성 합성은 전달된 문자열만 읽으며 특정 글자의 발음을 지정하는 API가 없습니다. 병음·주음·주석은 발음을 바꾸지 못합니다.<br>'+
+        '이 시트의 <b>「발음 교정 문자열」</b>은 <b>로컬 TTS만 읽는 대체 텍스트</b>입니다. 비우면 「{L} 번역」 칸을 읽고, 해당 언어의 대체 표기 / 구어형을 넣으면 <b>즉시 이 칸을 읽어 발음이 바로 바뀝니다</b>. 「{L} (납품)」 칸은 <b>한 글자도 바뀌지 않습니다</b>.<br>'+
+        '확정 후 「어느 줄, 어느 단어, 어떻게 읽을지」를 비고 칸에 작업 기록으로 남겨 고객이 자체 TTS 파이프라인에서 사전 / SSML을 수정하도록 전달하세요.<br>'+
+        '<b>표 아래 독립 예시 행은 중국어 예시(重庆 → 崇庆)입니다.</b> 「수동 검수 완료」를 체크하면 행 전체가 즉시 잠깁니다(텍스트·수정 버튼 비활성, 미리듣기는 읽기 전용으로 유지). 체크 해제 시 잠금 해제, 가져오기는 잠긴 행을 건너뜁니다.',
+      cheatSummary:'중국어 다음자 / 숫자 읽기 참고 (중국어 납품 전용; 다른 언어는 모국어 검수자가 해당 언어 규칙으로 판단)',
+      thEn:'원문<small>원문 그대로 붙여넣기<br>수정 금지</small>',
+      thZh:'{L} (납품)<small>최종 번역, 한 자도 변경 금지<br>문자 정확성만</small>',
+      thRead:'발음 교정 문자열<small>비움={L} 읽기 / 입력=이 칸 읽기<br>여기서 발음 수정</small>',
+      phEn:'원문',
+      phZh:'{L} 번역 (납품, 수정 금지)',
+      phRead:'비움={L} 읽기; 해당 언어 대체 표기 / 구어형 입력 시 발음 변경',
+      pastePh:'Excel / 표에서 복사해 붙여넣으세요. Tab 구분: 1열 원문, 2열 {L} 번역, 3열(선택) 발음 교정 문자열. 한 열이면 번역만 채웁니다. 한 줄 = 한 행 번호.',
+      importNote:'가져오기는 「원문 / {L} 번역 / 발음 교정 문자열」만 덮어쓰며 미리듣기·비고·검수 표시는 유지됩니다. <b>이미 검수 완료로 잠긴 행은 건너뜁니다.</b>',
+      btnCopyZh:'⧉ 번역 복사',
+      titleCopyZh:'「{L} 번역」을 발음 초안으로 복사',
+      btnDelivery:'고객 납품용 보기 내보내기',
+      btnDeliveryTitle:'고객용 영문 납품 보고서를 만듭니다(현재 납품 언어 표기). 비고 열이 그대로 포함되므로 대외 공개 가능한 내용만 적으세요',
+      flashDelivery:'고객 납품용 보기 내보냄 (영문 HTML, {L} 표기, 발음 문자열·내부 표시 제외)',
+      srcOn:'현재 읽기: 발음 문자열', srcOff:'현재 읽기: {L}',
+      csvSrcRead:'발음 문자열', csvSrcZh:'{L} 번역',
+      csvHead:['행 번호','원문','{L} (납품)','발음 교정 문자열','읽기 출처','시청','비고','수동 검수 완료'],
+      flashCopied:'「{L} 번역」을 발음 초안으로 복사했습니다. 몇 자만 고치면 미리듣기 발음이 바뀝니다',
+      flashClearedRead:'발음 문자열을 지웠습니다. 미리듣기가 「{L} 번역」 칸으로 돌아갑니다',
+      flashImported:'{n} 행 가져옴{skip} (원문 / {L} 번역 / 발음 문자열), 비고·검수 표시 유지',
+      flashReady:'준비: 193개 빈 행, 원문을 붙여넣으세요',
+      confirmClear:'전체 내용을 지우시겠습니까?\n\n193행의 원문·번역·발음 교정 문자열·비고·미리듣기·검수 표시가 모두 지워지며 되돌릴 수 없습니다.\n먼저 「JSON 백업 내보내기」를 권장합니다.\n\n193개 빈 행 틀은 남습니다.',
+      flashClearedAll:'전체 내용을 지웠습니다. 193개 빈 행 유지',
+      demoBadge:'중국어 예시',
+      demoTip:'중국어 예시: 동음자「崇」으로「重」의 읽기를 바꿈 (다른 언어는 해당 언어 규칙 적용)',
+      demoSrc:'현재 읽기: 발음 문자열 (중국어 예시)',
+      footer:'이 파일은 기본적으로 오프라인에서 작동합니다. 모든 스타일·스크립트가 인라인이며 번역 검수 / 발음 / 가져오기·내보내기 / 납품 보고서는 네트워크 없이 됩니다. 페이지 하단 버전 번호를 누르고 「새 버전 확인 (인터넷 필요)」 버튼을 누를 때만联网하며 버전 정보와 새 파일만 읽고 표 데이터는 절대 업로드하지 않으며 웹사이트도 열지 않습니다.<br>'+
+        '미리듣기는 브라우저 내장 음성 합성을 사용합니다. 「로컬」 음성은 이 기기에서 합성되고 「네트워크」 음성을 선택하면 텍스트가 음성 서비스로 전송될 수 있으니 민감한 내용을 붙여넣지 마세요.<br>'+
+        '모국어 수동 검수자 전용이며 기계 번역을 생성하지 않고 사람의 판단을 대신하지 않습니다. 데이터는 이 브라우저 localStorage에 저장되므로 브라우저 변경 / 캐시 삭제 전 「JSON 백업 내보내기」를 하세요. 계약 체결 후 납품은 Upwork workroom을 통해 진행하세요.',
+      verInfo:'현재 버전 v{v}.',
+      verNote:'기본 오프라인: 번역 검수 / 발음 / 가져오기·내보내기 / 납품 보고서는 네트워크 없이 됩니다. 「새 버전 확인」을 누를 때만 연결되며 버전 정보와 새 파일만 읽고 표 데이터는 업로드하지 않으며 웹사이트도 열지 않습니다.',
+      verCheck:'새 버전 확인 (인터넷 필요)',
+      flashDeliveryLang:'납품 언어가 {L}(으)로 변경되었습니다'
+    },
+    ja: { h1:'多言語 訳文・発音 人工審査シート', sub:'地名・名詞・フレーズの正しい訳文と発音 · 母語話者による手動審査専用 · データは本機のみ' },
+    km: { h1:'សន្លឹកពិនិត្យបកប្រែ និងសូរសព្ទ ពហុភាសា', sub:'សម្រាប់អ្នកពិនិត្យដោយដៃ ដែលនិយាយភាសាកំណើតប៉ុណ្ណោះ' },
+    fil:{ h1:'Multilingual na Pagsusuri ng Salin at Bigkas', sub:'Para sa mga katutubong tagasuri lamang · datos ay nasa makina lamang' },
+    my: { h1:'ဘာသာစုံ ဘာသာပြန်နှင့် အသံထွက် စစ်ဆေးရေးစာရွက်', sub:'မိခင်ဘာသာစကားပြော စစ်ဆေးသူများအတွက်သာ' },
+    mn: { h1:'Олон хэлний орчуулга, дуудлагын гар аргаар шалгах хуудас', sub:'Зөвхөн төрөлх хэлтэй хүний гар аргаар шалгахад зориулав' }
+  };
+  Object.keys(OVERRIDE).forEach(function(l){ if(I18N[l]) Object.assign(I18N[l], OVERRIDE[l]); });
+  ['ja','km','fil','my','mn'].forEach(function(l){ if(I18N[l]) I18N[l].verNote = I18N.en.verNote; });
   var lang = 'zh';
+  // {L}/{LE} 自动注入：所有 t() 调用都能拿到当前交付语言名，无需逐个改调用点
   function t(k, vars){
     var s = (I18N[lang] && I18N[lang][k] != null) ? I18N[lang][k]
           : (I18N.zh[k] != null ? I18N.zh[k] : k);
-    if(vars) Object.keys(vars).forEach(function(v){ s = s.split('{' + v + '}').join(vars[v]); });
-    return s;
+    var v = Object.assign({ L: dlLabel(), LE: dlEn() }, vars || {});
+    var rep = function(x){
+      if(Array.isArray(x)) return x.map(rep);
+      var out = String(x);
+      Object.keys(v).forEach(function(key){ out = out.split('{' + key + '}').join(v[key]); });
+      return out;
+    };
+    return rep(s);
   }
   function applyStaticLang(){
     document.querySelectorAll('[data-i18n]').forEach(function(el){ el.textContent = t(el.dataset.i18n); });
@@ -802,6 +994,38 @@ tbody#demoBody tr td.no{background:#fdf0d0}
     buildRows();
     save();
   }
+  function deliveryInfo(){
+    var code = state.settings.deliveryLang || 'zh-CN';
+    for(var i = 0; i < DELIVERY_LANGS.length; i++){
+      if(DELIVERY_LANGS[i].code === code) return DELIVERY_LANGS[i];
+    }
+    return DELIVERY_LANGS[0];
+  }
+  function dlLabel(){ var d = deliveryInfo(); return (lang === 'en') ? d.en : d.label; }
+  function dlEn(){ return deliveryInfo().en; }
+  function dlBcp47(){ return deliveryInfo().bcp47; }
+  function fillDeliverySelect(){
+    var sel = document.getElementById('deliveryLang');
+    if(!sel) return;
+    var cur = deliveryInfo().code;
+    sel.innerHTML = '';
+    DELIVERY_LANGS.forEach(function(d){
+      var o = document.createElement('option');
+      o.value = d.code;
+      o.textContent = d.label + ' · ' + d.en;
+      sel.appendChild(o);
+    });
+    sel.value = cur;
+  }
+  function setDeliveryLang(c){
+    if(!DELIVERY_LANGS.some(function(d){ return d.code === c; })) return;
+    closeVerPanel();
+    state.settings.deliveryLang = c;
+    applyStaticLang();
+    fillDeliverySelect();
+    save();
+    flash(t('flashDeliveryLang', { L: dlLabel() }));
+  }
   function applyGlobalLock(){
     var on = !!state.settings.lockedAll;
     document.body.classList.toggle('locked-all', on);
@@ -816,7 +1040,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
     });
   }
 
-  var state = { rows:[], settings:{ female:'', male:'', rate:0.9, lang:'zh', lockedAll:false } };
+  var state = { rows:[], settings:{ female:'', male:'', rate:0.9, lang:'zh', deliveryLang:'zh-CN', lockedAll:false } };
   var tbody = document.getElementById('tbody');
   var saveTimer = null;
 
@@ -856,7 +1080,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
         var d = JSON.parse(raw);
         if(d && Array.isArray(d.rows) && d.rows.length){
           state.rows = d.rows.map(function(r,i){ r.no = i+1; return migrate(r); });
-          state.settings = Object.assign({ female:'', male:'', rate:0.9, lang:'zh', lockedAll:false }, d.settings || {});
+          state.settings = Object.assign({ female:'', male:'', rate:0.9, lang:'zh', deliveryLang:'zh-CN', lockedAll:false }, d.settings || {});
           // 旧版把示范塞在第 1 行数据里；示范已移到独立行，精确清掉这条旧痕迹
           if(state.rows[0] && /^【示范】/.test(String(state.rows[0].en || ''))){
             state.rows[0] = blank(1);
@@ -981,7 +1205,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
       var hit = vs.filter(function(v){ return v.name === pref; })[0];
       if(hit) return hit;
     }
-    var want = LANG_BCP47[lang] || 'zh-CN';
+    var want = dlBcp47();
     var same = vs.filter(function(v){ return (v.lang || '').toLowerCase().indexOf(want.slice(0,2).toLowerCase()) === 0; });
     var pool = same.length ? same : vs;
     var re = (g === 'female') ? FEMALE : MALE;
@@ -998,7 +1222,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
     u.rate = parseFloat(state.settings.rate) || 0.9;
     u.pitch = 1;
     var v = pickVoice(gender);
-    u.lang = v ? (v.lang || 'zh-CN') : (LANG_BCP47[lang] || 'zh-CN');
+    u.lang = v ? (v.lang || dlBcp47()) : dlBcp47();
     if(v) u.voice = v;
     speechSynthesis.speak(u);
     flash(t('flashSpeaking', {
@@ -1053,6 +1277,9 @@ tbody#demoBody tr td.no{background:#fdf0d0}
 
   document.getElementById('langSelect').addEventListener('change', function(e){
     setLang(e.target.value);
+  });
+  document.getElementById('deliveryLang').addEventListener('change', function(e){
+    setDeliveryLang(e.target.value);
   });
   // 独立示范行：只读试听，不写入任何数据，不参与导入 / 导出 / 清空
   document.getElementById('demoBody').addEventListener('click', function(e){
@@ -1129,7 +1356,8 @@ tbody#demoBody tr td.no{background:#fdf0d0}
   }
   function csvCell(s){ return '"' + String(s == null ? '' : s).replace(/"/g,'""') + '"'; }
   document.getElementById('btnCsv').addEventListener('click', function(){
-    var lines = [t('csvHead').map(csvCell).join(',')];
+    var head = t('csvHead');
+    var lines = [head.map(csvCell).join(',')];
     state.rows.forEach(function(r){
       lines.push([
         r.no, r.en, r.zh, r.read, hasRead(r) ? t('csvSrcRead') : t('csvSrcZh'),
@@ -1137,11 +1365,11 @@ tbody#demoBody tr td.no{background:#fdf0d0}
         r.reviewed ? t('csvYes') : t('csvNo')
       ].map(csvCell).join(','));
     });
-    download('zh-tts-review.csv', '\uFEFF' + lines.join('\r\n'), 'text/csv;charset=utf-8');
+    download('review-' + deliveryInfo().code + '.csv', '\uFEFF' + lines.join('\r\n'), 'text/csv;charset=utf-8');
     flash(t('flashCsv'));
   });
   document.getElementById('btnJson').addEventListener('click', function(){
-    download('zh-tts-review-backup.json', JSON.stringify(state, null, 2), 'application/json');
+    download('translation-review-backup.json', JSON.stringify(state, null, 2), 'application/json');
     flash(t('flashJson'));
   });
   // 客户交付视图：自包含英文 HTML 报告，只含客户该看的字段（校音串 / 内部标记一律不出报告）
@@ -1166,7 +1394,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
     h.push('<!DOCTYPE html>');
     h.push('<html lang="en"><head><meta charset="UTF-8">');
     h.push('<meta name="viewport" content="width=device-width, initial-scale=1">');
-    h.push('<title>Translation delivery - English to Simplified Chinese</title>');
+    h.push('<title>Translation delivery - English to ' + dlEn() + '</title>');
     h.push('<style>');
     h.push('body{margin:0;padding:28px 30px 50px;background:#fff;color:#1c2430;font:14px/1.6 "Segoe UI",Arial,"Microsoft YaHei",sans-serif}');
     h.push('h1{font-size:20px;margin:0 0 4px}h2{font-size:15px;margin:26px 0 8px;padding-bottom:5px;border-bottom:2px solid #dfe3e8}');
@@ -1189,20 +1417,21 @@ tbody#demoBody tr td.no{background:#fdf0d0}
     h.push('.toolver{font-size:10.5px;color:#8a94a1}');
     h.push('@media print{body{padding:0}h2{page-break-after:avoid}tr{page-break-inside:avoid}}');
     h.push('</style></head><body>');
-    h.push('<h1>Translation delivery &mdash; English to Simplified Chinese</h1>');
-    h.push('<p class="sub">' + rows.length + ' short phone announcement lines &middot; TTS audio review sheet</p>');
+    h.push('<h1>Translation delivery &mdash; English to ' + dlEn() + '</h1>');
+    h.push('<p class="sub">' + rows.length + ' lines &middot; ' + dlEn() + ' delivery &middot; native-speaker manual review of translation and pronunciation</p>');
     h.push('<div class="meta">');
     h.push('<span>Generated: <b>' + stamp + '</b></span>');
     h.push('<span>Lines delivered: <b>' + delivered.length + ' / ' + rows.length + '</b></span>');
     h.push('<span>Manually reviewed: <b>' + reviewed + ' / ' + rows.length + '</b></span>');
     h.push('<span>Notes for TTS pipeline: <b>' + noted.length + '</b></span>');
+    h.push('<span>Delivery language: <b>' + dlEn() + '</b></span>');
     h.push('</div>');
     h.push('<h2>1. Delivered translation</h2>');
     if(!delivered.length){
       h.push('<p class="empty">No translation lines have been filled in yet.</p>');
     }else{
       h.push('<table><colgroup><col class="c-no"><col class="c-en"><col class="c-zh"><col class="c-st"></colgroup>');
-      h.push('<thead><tr><th>No.</th><th>English source</th><th>Simplified Chinese (delivery)</th><th>Review</th></tr></thead><tbody>');
+      h.push('<thead><tr><th>No.</th><th>Source text</th><th>' + dlEn() + ' (delivery)</th><th>Review</th></tr></thead><tbody>');
       delivered.forEach(function(r){
         h.push('<tr><td>' + r.no + '</td><td>' + escHtml(r.en) + '</td><td>' + escHtml(r.zh) + '</td><td>' + (r.reviewed ? 'Reviewed' : '&mdash;') + '</td></tr>');
       });
@@ -1212,9 +1441,9 @@ tbody#demoBody tr td.no{background:#fdf0d0}
     if(!noted.length){
       h.push('<p class="empty">No pronunciation or review notes recorded.</p>');
     }else{
-      h.push('<p class="sub">Lines below were checked against a local TTS voice. The Chinese column is the deliverable text; the notes are suggestions for your TTS dictionary / SSML, not replacement text.</p>');
+      h.push('<p class="sub">Lines below were checked against a local TTS voice. The ' + dlEn() + ' column is the deliverable text; the notes are suggestions for your TTS dictionary / SSML, not replacement text. All judgements were made by a native-speaker human reviewer.</p>');
       h.push('<table><colgroup><col class="c-n2"><col class="c-z2"><col class="c-nt"></colgroup>');
-      h.push('<thead><tr><th>No.</th><th>Chinese (delivery)</th><th>Translator\'s notes</th></tr></thead><tbody>');
+      h.push('<thead><tr><th>No.</th><th>' + dlEn() + ' (delivery)</th><th>Reviewer notes</th></tr></thead><tbody>');
       noted.forEach(function(r){
         var flag = String(r.read||'').trim() ? 'Pronunciation checked locally. ' : '';
         h.push('<tr><td>' + r.no + '</td><td>' + escHtml(r.zh) + '</td><td class="note">' + flag + escHtml(r.note) + '</td></tr>');
@@ -1222,8 +1451,9 @@ tbody#demoBody tr td.no{background:#fdf0d0}
       h.push('</tbody></table>');
     }
     h.push('<div class="foot">');
-    h.push('The "Simplified Chinese (delivery)" column is the final translation and must be used as-is for synthesis. Pronunciation verification used a stand-in text read by a local browser voice; it is <b>not</b> part of the delivered translation and never appears in this report.<br>');
+    h.push('The "' + dlEn() + ' (delivery)" column is the final translation and must be used as-is for synthesis. Pronunciation verification used a stand-in text read by a local browser voice; it is <b>not</b> part of the delivered translation and never appears in this report.<br>');
     h.push('Final pronunciation fixes (polyphonic characters, place names, spoken-form numbers) must be applied in your TTS pipeline via dictionary / SSML rules. The notes above list the lines that need attention.<br>');
+    h.push('Reviewed by a native-speaker human reviewer. This tool produces no machine translation and does not replace human judgement.<br>');
     h.push('This report is a self-contained offline file with no external resources and no off-platform contact details. All communication stays on Upwork.');
     h.push('<div class="credit"><span class="author">Created by Siyuan Zheng &middot; <a href="https://www.upwork.com/freelancers/~01dcb0ebfb63cafa8d" target="_blank" rel="noopener">Upwork profile</a></span><span class="sep">&middot;</span><svg class="mark" viewBox="0 0 64 64" width="13" height="13" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#12325c"/><g fill="#fff"><rect x="14" y="18" width="36" height="5" rx="2.5"/><rect x="14" y="30" width="28" height="5" rx="2.5"/><rect x="14" y="42" width="20" height="5" rx="2.5"/></g><circle cx="48" cy="44" r="6" fill="#4da3ff"/></svg><span class="toolver">Review sheet v' + TOOL_VERSION + '</span><span class="sep">&middot;</span>&copy; 2026</div>');
     h.push('</div>');
@@ -1322,6 +1552,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
       btns = vbtn('cancel', t('verClose')) + vbtn('check', t('verRetry'), 'primary');
     }
     if(btns) html += '<div class="verbtns">' + btns + '</div>';
+    html += '<div class="vernote">' + escHtml(t('verNote')) + '</div>';
     p.innerHTML = html;
     document.body.appendChild(back);
     document.body.appendChild(p);
@@ -1394,6 +1625,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
   state.settings.lang = lang;
   applyStaticLang();
   markLangButtons();
+  fillDeliverySelect();
   refillSettings();
   buildRows();
   applyGlobalLock();
