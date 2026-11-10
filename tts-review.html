@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-i18n="title">中文播报文稿 · TTS 审听与校音表</title>
+<style>
+:root{
+  --bg:#f5f7fa; --panel:#ffffff; --ink:#1c2430; --muted:#6b7684;
+  --line:#dfe3e8; --head:#eef1f5; --accent:#1f6feb; --ok:#12864a;
+  --warn:#b26a00; --alt:#fafbfc; --read:#fff6e8; --readink:#8a5200;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:16px 18px 40px;background:var(--bg);color:var(--ink);
+  font:14px/1.5 "Microsoft YaHei","PingFang SC","Malgun Gothic","Meiryo","Myanmar Text","Khmer UI","Leelawadee UI","Segoe UI",Arial,sans-serif}
+h1{font-size:19px;margin:0 0 4px;padding-right:230px}
+.sub{margin:0 0 12px;color:var(--muted);font-size:12.5px}
+#langSwitch{position:absolute;top:14px;right:18px;z-index:6}
+#langSelect{font:inherit;font-size:12px;padding:5px 8px;border:1px solid var(--line);
+  border-radius:7px;background:var(--panel);color:var(--ink);max-width:200px}
+.lock-bar{display:none;background:#fff1f0;border:1px solid #ffc9c4;color:#8a1c13;
+  border-radius:7px;padding:7px 12px;font-size:12.5px;margin-bottom:10px;font-weight:600}
+body.locked-all .lock-bar{display:block}
+.credit{text-align:center;margin-top:10px;font-size:11px;color:var(--muted);line-height:1.8}
+.credit .sep{margin:0 5px;opacity:.55}
+.credit .mark{width:13px;height:13px;vertical-align:-2px;margin-right:4px}
+.author{font-size:11.5px;color:var(--muted);line-height:1.7}
+.toolver{font-size:10.5px;color:var(--muted);opacity:.62;letter-spacing:.03em;
+  cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px}
+.toolver:hover{opacity:1;color:var(--accent)}
+.verback{position:fixed;inset:0;background:rgba(0,0,0,.28);z-index:98}
+.verpanel{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:99;
+  width:min(430px,92vw);background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:16px 18px;box-shadow:0 8px 30px rgba(0,0,0,.16);font-size:12.5px;line-height:1.75;color:var(--ink)}
+.verpanel h3{margin:0 0 8px;font-size:14px}
+.verpanel p{margin:0 0 12px}
+.verpanel .verbtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.verpanel button{font:inherit;font-size:12px;padding:5px 11px;border:1px solid var(--line);
+  border-radius:6px;background:var(--panel);color:var(--ink);cursor:pointer}
+.verpanel button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.author a{color:var(--accent)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:11px 13px;margin-bottom:11px}
+.notice-fold{background:#eef5ff;border:1px solid #c9dcff;border-radius:8px;margin-bottom:11px}
+.notice-fold>summary{cursor:pointer;list-style:none;padding:8px 13px;font-size:12.5px;font-weight:600;
+  color:#12325c;display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.notice-fold>summary::-webkit-details-marker{display:none}
+.notice-fold>summary::before{content:'▸';font-size:11px;color:#1f6feb}
+.notice-fold[open]>summary::before{content:'▾'}
+.notice-fold .fold-hint{font-weight:400;font-size:11.5px;color:#6b7684}
+.notice-body{border-top:1px solid #c9dcff;padding:9px 13px 11px;font-size:12.5px;line-height:1.7;color:#1b3a63}
+.notice-body b{color:#12325c}
+.notice-body code{background:#dce9ff;color:#12325c}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+label{font-size:12.5px;color:var(--muted)}
+label b{color:var(--ink);font-weight:600}
+select,input[type=range],textarea.paste{font:inherit;font-size:12.5px}
+select{border:1px solid var(--line);border-radius:5px;padding:3px 6px;background:#fff;color:var(--ink);max-width:220px}
+button{font:inherit;font-size:12px;cursor:pointer;border:1px solid var(--line);background:#fff;
+  color:var(--ink);border-radius:5px;padding:3px 8px}
+button:hover{border-color:var(--accent);color:var(--accent)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button.primary:hover{opacity:.9;color:#fff}
+button.f{color:#a3318b}button.m{color:#1f6feb}
+button:disabled{cursor:not-allowed;opacity:.5;border-color:var(--line);color:var(--muted)}
+.stats{font-size:13px;padding:7px 0 0;color:var(--muted)}
+.stats b{color:var(--ink)}.stats b.ok{color:var(--ok)}.stats b.read{color:var(--readink)}
+#voiceStatus{font-size:12px;color:var(--muted)}
+#saveState{font-size:12px;color:var(--muted);margin-left:auto}
+details{margin-bottom:11px}
+details>summary{cursor:pointer;font-size:13px;font-weight:600;padding:7px 10px;
+  background:var(--panel);border:1px solid var(--line);border-radius:7px}
+details>div{background:var(--panel);border:1px solid var(--line);border-top:0;
+  border-radius:0 0 7px 7px;padding:10px 14px;font-size:12.5px;color:var(--ink)}
+.paste{width:100%;min-height:64px;border:1px solid var(--line);border-radius:6px;
+  padding:7px 9px;resize:vertical;font-size:12.5px}
+.table-wrap{overflow-y:auto;overflow-x:hidden;max-height:calc(100vh - 300px);
+  border:1px solid var(--line);border-radius:9px;background:#fff}
+table{border-collapse:separate;border-spacing:0;table-layout:fixed;min-width:0;width:100%;font-size:12.5px}
+thead th{position:sticky;top:0;z-index:3;background:var(--head);border-bottom:2px solid var(--line);
+  padding:6px 6px;text-align:left;vertical-align:top;font-weight:600;white-space:normal}
+thead th small{display:block;font-weight:400;color:var(--muted);font-size:10.5px;line-height:1.3;margin-top:2px}
+th.no,td.no{text-align:center;width:5%;background:var(--head)}
+tbody td{border-bottom:1px solid var(--line);padding:4px 5px;vertical-align:top;overflow-wrap:anywhere}
+tbody tr:nth-child(even) td{background:var(--alt)}
+tbody tr:nth-child(even) td.no{background:var(--head)}
+tbody tr.row-locked td{background:#eef0f3}
+tbody tr.row-locked td.no{background:#e4e7eb}
+tbody tr.row-locked td textarea{background:#e9ebee;color:#8a94a1;border-color:transparent}
+td textarea{width:100%;min-height:34px;border:1px solid transparent;background:transparent;
+  font:inherit;font-size:12px;color:var(--ink);padding:3px 4px;border-radius:4px;resize:vertical;display:block}
+td textarea:focus{outline:none;border-color:var(--accent);background:#fff;
+  box-shadow:0 0 0 2px rgba(31,111,235,.12)}
+td textarea::placeholder{color:#aab2bd}
+textarea[data-f=read]{background:var(--read);color:var(--readink);border:1px dashed #e8cfa0}
+textarea[data-f=read]:focus{background:#fff;color:var(--ink);border-color:var(--accent)}
+.mini{display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin-top:3px}
+.mini button{padding:1px 5px;font-size:10.5px}
+.play-row{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:3px}
+.play-row button{padding:2px 5px;font-size:11px}
+.chk{display:inline-flex;align-items:center;gap:3px;font-size:11px;color:var(--muted);white-space:nowrap;cursor:pointer}
+.chk input{margin:0}
+.tag{display:inline-block;padding:1px 5px;border-radius:10px;font-size:10.5px;margin-top:3px}
+.tag.ok{background:#e6f5ec;color:var(--ok)}
+.tag.todo{background:#f0f2f5;color:var(--muted)}
+.lock-note{font-size:10.5px;color:#8a94a1;margin-top:3px;line-height:1.3}
+.src{display:inline-block;font-size:10.5px;padding:1px 5px;border-radius:4px;margin-top:3px;
+  background:#eef1f5;color:var(--muted)}
+.src.on{background:#fde9c8;color:var(--readink)}
+footer{font-size:11.5px;color:var(--muted);margin-top:12px;line-height:1.7}
+code{background:#eef1f5;padding:1px 4px;border-radius:3px;font-size:11.5px}
+/* 独立示范行：固定在表头下，不参与导入 / 导出 / 清空 / 统计 */
+tbody#demoBody tr td{background:#fff8e6;border-bottom:2px solid #e8cfa0;color:#6b4e12}
+tbody#demoBody tr td.no{background:#fdf0d0}
+.demo-badge{display:inline-block;background:#f0b429;color:#3d2b00;border-radius:9px;
+  padding:1px 6px;font-size:10.5px;font-weight:600}
+.demo-cell{font-size:12px;line-height:1.5;display:block}
+.demo-cell.read{color:var(--readink);font-weight:600}
+.demo-tip{display:block;font-size:10.5px;color:#9a7b3f;margin-top:3px;line-height:1.35}
+.demo-src{display:inline-block;font-size:10.5px;padding:1px 5px;border-radius:4px;margin-top:3px;
+  background:#fde9c8;color:var(--readink)}
+</style>
+</head>
+<body>
+
+<div id="langSwitch">
+  <select id="langSelect" data-i18n-title="langTitle" title="界面语言">
+    <option value="zh">中文</option>
+    <option value="en">English</option>
+    <option value="ko">한국어</option>
+    <option value="ja">日本語</option>
+    <option value="km">ភាសាខ្មែរ</option>
+    <option value="fil">Filipino</option>
+    <option value="my">မြန်မာ</option>
+    <option value="mn">Монгол</option>
+  </select>
+</div>
+<div class="lock-bar" id="lockBar" data-i18n="lockBar">🔒 全局已锁定 · 点顶部「解锁」后方可编辑</div>
+
+<h1 data-i18n="h1">中文播报文稿 · TTS 审听与校音表</h1>
+<p class="sub" data-i18n="sub">离线单文件 · 193 行逐行试读 / 校音改变读音 / 审核锁定防误碰 · 数据只存本机浏览器，不上传</p>
+
+<details class="notice-fold" id="noticeFold">
+  <summary data-i18n-html="noticeSummary">使用说明 · 校音怎么改变读音 / 审核锁定（点开看）<span class="fold-hint">第 1 行已填示范，可直接点 ♀ 女 试听</span></summary>
+  <div class="notice-body" data-i18n-html="noticeBody">
+    <b>校音怎么改变试听读音：</b>浏览器语音合成只认「送给它的那串文本」，没有「指定某个字读某个音」的接口，任何拼音、注音、标注都不会改变发音。<br>
+    本表把校音做成 <b>「校音试读串」</b>——<b>只给本机 TTS 念的替身文本</b>：留空时试读念「中文」格；一旦填入同音字 / 口语数字（如 <code>重→崇</code>、<code>110→幺幺零</code>），试读<b>立刻改念这一格，读音当场就变</b>，而「中文」交付格<b>一字不动</b>。试听列会显示当前读的是哪一格。<br>
+    中文译文（文字）本身通常是对的，错的只是 TTS 念出来的音，因此这一列是本表的核心。定稿后把「哪一行、哪个字、该读什么」作为工作留痕写进「备注」列，再交给客户在他们自己的 TTS 管线里修词典 / SSML。<br>
+    <b>第 1 行已填好示范（重庆 → 崇庆）：</b>点 <code>♀ 女</code> 听校音后的读音 → 点「清空」再点 <code>♀ 女</code> 听原文对比。<b>勾「人工审核完成」后整行立即锁定</b>（文本框与改动按钮全部禁用，避免误碰；试听只读仍可点），取消勾选即解锁；导入源文会跳过已锁定的行。
+  </div>
+</details>
+
+<div class="panel">
+  <div class="row">
+    <label><b data-i18n="lblFemale">女声声线</b> <select id="femaleVoice"></select></label>
+    <label><b data-i18n="lblMale">男声声线</b> <select id="maleVoice"></select></label>
+    <label><b data-i18n="lblRate">语速</b> <input type="range" id="rate" min="0.6" max="1.3" step="0.05" value="0.9"> <span id="rateVal">0.90</span></label>
+    <button type="button" id="btnStopAll" data-i18n="btnStopAll">■ 停止全部</button>
+    <span id="voiceStatus"></span>
+    <span id="saveState" data-i18n="saveInit">尚未保存</span>
+  </div>
+  <div class="stats" id="stats"></div>
+</div>
+
+<div class="panel">
+  <div class="row" style="margin-bottom:8px">
+    <button type="button" class="primary" id="btnImport" data-i18n="btnImport">从下方粘贴区导入</button>
+    <button type="button" id="btnCsv" data-i18n="btnCsv">导出 CSV（Excel 可开）</button>
+    <button type="button" id="btnJson" data-i18n="btnJson">导出 JSON 备份</button>
+    <button type="button" class="primary" id="btnDelivery" data-i18n="btnDelivery" data-i18n-title="btnDeliveryTitle" title="导出给客户看的英文交付报告">导出客户交付视图</button>
+    <label class="chk"><span data-i18n="lblImportBackup">导入备份</span> <input type="file" id="fileJson" accept=".json,application/json"></label>
+    <button type="button" id="btnReset" data-i18n="btnReset">清空内容</button>
+    <button type="button" id="btnLockAll">🔒 锁定全部</button>
+  </div>
+  <textarea class="paste" id="pasteArea" spellcheck="false" data-i18n-ph="pastePh" placeholder="从 Excel / 表格复制后粘贴到这里：用 Tab 分隔，第 1 列英文、第 2 列中文、第 3 列（可选）校音试读串。单列则只填中文。一行对应一个行号。"></textarea>
+  <div style="font-size:11.5px;color:var(--muted);margin-top:5px" data-i18n-html="importNote">
+    导入只覆盖「英文 / 中文 / 校音试读串」，不会清掉试听、备注和审核标记；<b>已人工审核锁定的行会被跳过</b>。
+  </div>
+</div>
+
+<div class="table-wrap">
+<table>
+  <colgroup>
+    <col style="width:5%"><col style="width:16%"><col style="width:19%">
+    <col style="width:19%"><col style="width:11%"><col style="width:10%"><col style="width:20%">
+  </colgroup>
+  <thead>
+    <tr>
+      <th class="no" data-i18n-html="thNo">行号<small>源文对应<br>不可重排</small></th>
+      <th data-i18n-html="thEn">英文<small>原文原样粘贴<br>不改动</small></th>
+      <th data-i18n-html="thZh">中文（交付）<small>正式译文，一字不改<br>只保证文字正确</small></th>
+      <th data-i18n-html="thRead">校音试读串<small>留空=读中文 / 填了=读这格<br>改读音就改这里</small></th>
+      <th data-i18n-html="thPlay">试听<small>♀ 女 / ♂ 男 / ■ 停<br>显示当前读哪格</small></th>
+      <th data-i18n-html="thReview">人工审核<small>勾完成即整行锁定<br>取消勾选解锁</small></th>
+      <th data-i18n-html="thNote">备注<small>工作备注 / 二次修订、人员留痕<br>纯文本，不参与校音</small></th>
+    </tr>
+  </thead>
+  <tbody id="demoBody">
+    <tr>
+      <td class="no"><span class="demo-badge" data-i18n="demoBadge">示范</span></td>
+      <td><span class="demo-cell" data-i18n="demoEn">【示例源文】Chongqing</span></td>
+      <td><span class="demo-cell" data-i18n="demoZh">重庆市</span></td>
+      <td><span class="demo-cell read" data-i18n="demoRead">崇庆市</span>
+          <span class="demo-tip" data-i18n="demoTip">校音串：用同音字「崇」改变「重」的读音</span></td>
+      <td><div class="play-row">
+            <button type="button" class="f" data-demo-play="f" data-i18n="btnPlayF">♀ 女</button>
+            <button type="button" class="m" data-demo-play="m" data-i18n="btnPlayM">♂ 男</button>
+            <button type="button" data-demo-play="stop" data-i18n="btnStop">■</button>
+            <button type="button" data-demo-play="orig" data-i18n="demoOrig">原文</button>
+          </div><span class="demo-src" data-i18n="demoSrc">当前读：校音串</span></td>
+      <td><span class="demo-cell" data-i18n="demoReview">不参与统计 / 导入 / 导出</span></td>
+      <td><span class="demo-cell" data-i18n="demoNote">工作留痕示范：初校 → 二次修订 → 交接说明</span></td>
+    </tr>
+  </tbody>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<details>
+  <summary data-i18n="cheatSummary">常用多音字 / 数字读法速查（人工参考；校音请直接改「校音试读串」列）</summary>
+  <div style="line-height:2" data-i18n-html="cheatBody">
+    <code>重|chóng|重复</code>（重庆 chóng qìng）　<code>六|lù|六安</code>（地名）　<code>丽|lí|丽水</code>（地名）<br>
+    <code>番|pān|番禺</code>（地名）　<code>铅|yán|铅山</code>（地名）　<code>台|tāi|台州</code>（地名）　<code>蚌|bèng|蚌埠</code>（地名）<br>
+    <code>华|huà|华山</code>　<code>燕|yān|燕京</code>　<code>厦|xià|厦门</code>　<code>乐|yuè|音乐</code> / <code>乐|lè|快乐</code><br>
+    <span style="color:var(--warn)">数字读法：号码里 <b>1</b> 常读「幺 yāo」、<b>0</b> 常读「洞 dòng」；<b>110</b> 读「幺幺零」而非「一百一十」。播报稿必须按口语写，不能只写阿拉伯数字。</span><br>
+    <span style="color:var(--muted)">罗马字残留（Incheon / Myeongdong 等）必须换成中文惯用译名，否则中文 TTS 会用中文腔硬念，一听就露。</span>
+  </div>
+</details>
+
+<footer data-i18n-html="footer">
+  本文件为本地校对工具，不含任何联系方式、站外链接或外部资源；所有样式与脚本均内联，断网可用。<br>
+  试听使用浏览器内置语音合成：标注「本地」的声线在本机合成；若选用标注「网络」的声线，文本可能由浏览器发送给语音服务，请勿粘贴敏感内容。<br>
+  数据自动保存在本浏览器 localStorage 中，换浏览器 / 清缓存前请先「导出 JSON 备份」。合同成立后如需交付，请经 Upwork workroom 上传。
+</footer>
+<div class="credit"><span class="author" data-i18n-html="authorLine"></span><span class="sep">·</span><svg class="mark" viewBox="0 0 64 64" width="13" height="13" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#12325c"/><g fill="#fff"><rect x="14" y="18" width="36" height="5" rx="2.5"/><rect x="14" y="30" width="28" height="5" rx="2.5"/><rect x="14" y="42" width="20" height="5" rx="2.5"/></g><circle cx="48" cy="44" r="6" fill="#4da3ff"/></svg><span class="toolver" id="toolver" role="button" tabindex="0"></span><span class="sep">·</span><span class="year">&copy; 2026</span></div>
+
+<script>
+(function(){
+  'use strict';
+  var KEY = 'zh_tts_review_v1';
+  // 显式版本号：写进工具 footer 与客户交付报告，便于追溯；纯静态文本，不含任何联网 / 上报
+  var TOOL_VERSION = '1.0.0';
+  var DEFAULT_ROWS = 193;
+  var FEMALE = /xiaoxiao|xiaoyi|huihui|yaoyao|tingting|hanhan|female|女/i;
+  var MALE = /yunxi|yunjian|kangkang|liang|male|男/i;
+
+  // 三语字典：界面文案全部走这里；表格里的数据内容不参与翻译
+  var I18N = {
+    zh: {
+      title:'中文播报文稿 · TTS 审听与校音表',
+      h1:'中文播报文稿 · TTS 审听与校音表',
+      sub:'离线单文件 · 193 行逐行试读 / 校音改变读音 / 审核锁定防误碰 · 数据只存本机浏览器，不上传',
+      langTitle:'界面语言',
+      noticeSummary:'使用说明 · 校音怎么改变读音 / 审核锁定（点开看）<span class="fold-hint">表头下方有独立示范行，可直接点 ♀ 女 试听</span>',
+      noticeBody:'<b>校音怎么改变试听读音：</b>浏览器语音合成只认「送给它的那串文本」，没有「指定某个字读某个音」的接口，任何拼音、注音、标注都不会改变发音。<br>'+
+        '本表把校音做成 <b>「校音试读串」</b>——<b>只给本机 TTS 念的替身文本</b>：留空时试读念「中文」格；一旦填入同音字 / 口语数字（如 <code>重→崇</code>、<code>110→幺幺零</code>），试读<b>立刻改念这一格，读音当场就变</b>，而「中文」交付格<b>一字不动</b>。试听列会显示当前读的是哪一格。<br>'+
+        '中文译文（文字）本身通常是对的，错的只是 TTS 念出来的音，因此这一列是本表的核心。定稿后把「哪一行、哪个字、该读什么」作为工作留痕写进「备注」列，再交给客户在他们自己的 TTS 管线里修词典 / SSML。<br>'+
+        '<b>表头下方是独立示范行（重庆 → 崇庆）：</b>点 <code>♀ 女</code> 听校音后的读音 → 点「原文」听「重庆市」对比。<b>勾「人工审核完成」后整行立即锁定</b>（文本框与改动按钮全部禁用，避免误碰；试听只读仍可点），取消勾选即解锁；导入源文会跳过已锁定的行。示范行固定不动，不参与导入 / 导出 / 清空。',
+      lblFemale:'女声声线', lblMale:'男声声线', lblRate:'语速',
+      btnStopAll:'■ 停止全部', btnImport:'从下方粘贴区导入', btnCsv:'导出 CSV（Excel 可开）',
+      btnJson:'导出 JSON 备份', lblImportBackup:'导入备份', btnReset:'清空内容', saveInit:'尚未保存',
+      btnDelivery:'导出客户交付视图',
+      btnDeliveryTitle:'生成给客户看的英文交付报告；备注列内容会原样出现在报告里，请只写可对外的内容',
+      flashDelivery:'已导出客户交付视图（英文 HTML 报告，不含校音串与内部标记）',
+      btnLock:'🔒 锁定全部', btnUnlock:'🔓 解锁',
+      lockBar:'🔒 全局已锁定 · 点顶部「解锁」后方可编辑',
+      lockNoteAll:'全局已锁定 · 点顶部解锁',
+      flashLocked:'已锁定全部行，试听仍可用', flashUnlocked:'已解锁，可继续编辑',
+      authorLine:'Created by Siyuan Zheng &middot; <a href="https://www.upwork.com/freelancers/~01dcb0ebfb63cafa8d" target="_blank" rel="noopener">Upwork profile</a>',
+      pastePh:'从 Excel / 表格复制后粘贴到这里：用 Tab 分隔，第 1 列英文、第 2 列中文、第 3 列（可选）校音试读串。单列则只填中文。一行对应一个行号。',
+      importNote:'导入只覆盖「英文 / 中文 / 校音试读串」，不会清掉试听、备注和审核标记；<b>已人工审核锁定的行会被跳过</b>。',
+      thNo:'行号<small>源文对应<br>不可重排</small>',
+      thEn:'英文<small>原文原样粘贴<br>不改动</small>',
+      thZh:'中文（交付）<small>正式译文，一字不改<br>只保证文字正确</small>',
+      thRead:'校音试读串<small>留空=读中文 / 填了=读这格<br>改读音就改这里</small>',
+      thPlay:'试听<small>♀ 女 / ♂ 男 / ■ 停<br>显示当前读哪格</small>',
+      thReview:'人工审核<small>勾完成即整行锁定<br>取消勾选解锁</small>',
+      thNote:'备注<small>工作备注 / 二次修订、人员留痕<br>纯文本，不参与校音</small>',
+      cheatSummary:'常用多音字 / 数字读法速查（人工参考；校音请直接改「校音试读串」列）',
+      cheatBody:'<code>重|chóng|重复</code>（重庆 chóng qìng）　<code>六|lù|六安</code>（地名）　<code>丽|lí|丽水</code>（地名）<br>'+
+        '<code>番|pān|番禺</code>（地名）　<code>铅|yán|铅山</code>（地名）　<code>台|tāi|台州</code>（地名）　<code>蚌|bèng|蚌埠</code>（地名）<br>'+
+        '<code>华|huà|华山</code>　<code>燕|yān|燕京</code>　<code>厦|xià|厦门</code>　<code>乐|yuè|音乐</code> / <code>乐|lè|快乐</code><br>'+
+        '<span style="color:var(--warn)">数字读法：号码里 <b>1</b> 常读「幺 yāo」、<b>0</b> 常读「洞 dòng」；<b>110</b> 读「幺幺零」而非「一百一十」。播报稿必须按口语写，不能只写阿拉伯数字。</span><br>'+
+        '<span style="color:var(--muted)">罗马字残留（Incheon / Myeongdong 等）必须换成中文惯用译名，否则中文 TTS 会用中文腔硬念，一听就露。</span>',
+      footer:'本文件为本地校对工具，不含任何联系方式、站外链接或外部资源；所有样式与脚本均内联，断网可用。<br>'+
+        '试听使用浏览器内置语音合成：标注「本地」的声线在本机合成；若选用标注「网络」的声线，文本可能由浏览器发送给语音服务，请勿粘贴敏感内容。<br>'+
+        '数据自动保存在本浏览器 localStorage 中，换浏览器 / 清缓存前请先「导出 JSON 备份」。合同成立后如需交付，请经 Upwork workroom 上传。',
+      optAuto:'自动（按名称推断）', optLocal:' · 本地', optNet:' · 网络',
+      voiceOk:'本机可用语音 {n} 个（含各语种）', voiceNone:'未检测到本机语音：请在系统设置里安装所需语言的语音包',
+      phEn:'英文原文', phZh:'简体中文译文（交付，不改）',
+      phRead:'留空=读中文；填同音字 / 口语数字即改读音',
+      phNote:'工作留痕：初校 / 二次修订 / 工作人员 / 交接说明…',
+      btnPlayF:'♀ 女', btnPlayM:'♂ 男', btnStop:'■',
+      titlePlayF:'用女声试读当前生效文本', titlePlayM:'用男声试读当前生效文本', titleStop:'停止朗读',
+      chkListened:'已试听', chkReviewed:'人工审核完成',
+      btnCopyZh:'⧉ 取中文', btnClearRead:'清空',
+      titleCopyZh:'把「中文」复制过来当校音底稿', titleClearRead:'清空校音串，恢复读中文',
+      tagReviewed:'✓ 已人工审核', tagTodo:'未审核',
+      srcOn:'当前读：校音串', srcOff:'当前读：中文', lockNote:'已锁定 · 取消可编辑',
+      statsTpl:'总行数 <b>{n}</b>　·　已试听 <b>{l}</b>　·　已校音 <b class="read">{r}</b>　·　已人工审核 <b class="ok">{v}</b> / {n}',
+      genderF:'女声', genderM:'男声', voiceDefault:'系统默认',
+      flashSaved:'已自动保存 {t}', flashSaveFail:'保存失败：{m}',
+      flashReady:'就绪：193 行空表，等待粘贴源文',
+      flashEmpty:'当前生效文本为空，没有可试读的内容',
+      flashNoTts:'当前浏览器不支持语音合成，请用 Edge / Chrome',
+      flashSpeaking:'{g}试读中：{v}', flashStopped:'已停止朗读', flashStopAll:'已停止全部朗读',
+      flashCopied:'已把「中文」复制为校音底稿，改几个字即可改变试听读音',
+      flashClearedRead:'已清空校音串，试读恢复为「中文」格',
+      flashPasteEmpty:'粘贴区是空的',
+      flashImported:'已导入 {n} 行{skip}（英文 / 中文 / 校音串），备注与审核标记保留',
+      flashSkip:'，跳过 {m} 行已审核锁定',
+      flashCsv:'CSV 已导出（含 BOM，Excel 直接打开中文不乱码）',
+      flashJson:'JSON 备份已导出', flashRestored:'已恢复备份，共 {n} 行',
+      flashImportFail:'导入失败：{m}', errNoRows:'备份里没有 rows',
+      flashClearedAll:'已清空全部内容，保留 193 个空行框架',
+      confirmClear:'确定清空全部内容吗？\n\n将清掉 193 行的英文、中文、校音试读串、备注、试听与审核标记，此操作不可撤销。\n建议先点「导出 JSON 备份」保存，再清空。\n\n表格会保留 193 个空行框架。',
+      csvHead:['行号','英文','中文（交付）','校音试读串','试读来源','试听','备注','人工审核完成'],
+      csvSrcRead:'校音串', csvSrcZh:'中文', csvListened:'已试听', csvNotListened:'未试听',
+      csvYes:'是', csvNo:'否',
+      demoBadge:'示范', demoEn:'【示例源文】Chongqing', demoZh:'重庆市', demoRead:'崇庆市',
+      demoTip:'校音串：用同音字「崇」改变「重」的读音',
+      demoOrig:'原文', demoSrc:'当前读：校音串',
+      demoReview:'不参与统计 / 导入 / 导出', demoNote:'工作留痕示范：初校 → 二次修订 → 交接说明',
+      verTitle:'工具版本',
+      verInfo:'当前版本 v{v}。本工具为离线单文件，不会自动联网，数据只保存在本机浏览器。',
+      verCheck:'查看新版本（需联网）',
+      verCancel:'取消',
+      verNotConfigured:'尚未配置版本发布地址，未发起任何连接。'
+    },
+    en: {
+      title:'Chinese Announcement Script - TTS Preview & Pronunciation Table',
+      h1:'Chinese Announcement Script - TTS Preview & Pronunciation Table',
+      sub:'Offline single file - 193 line-by-line previews / pronunciation changes the reading / review lock prevents accidental edits - Data stays in this browser only, never uploaded',
+      langTitle:'Interface language',
+      noticeSummary:'How to use - pronunciation & review lock (click to open)<span class="fold-hint">A separate demo row sits under the header - click the female button to preview</span>',
+      noticeBody:'<b>How pronunciation adjustment changes the preview:</b> Browser speech synthesis only reads the exact string of text it is given; there is no API to "make this character sound like that". Pinyin, phonetic notes and annotations never change the pronunciation.<br>'+
+        'This table handles it with the <b>"Pronunciation string"</b> - <b>a stand-in text read only by your local TTS</b>: leave it empty and the preview reads the "Chinese" cell; once you enter a homophone or spoken-form number (e.g. <code>重→崇</code>, <code>110→幺幺零</code>), the preview <b>instantly reads this cell instead, so the sound changes on the spot</b>, while the "Chinese (delivery)" cell <b>stays untouched</b>. The Preview column shows which cell is currently being read.<br>'+
+        'The Chinese wording itself is usually correct - only the TTS reading is wrong - so this column is the core of the table. When finalized, record "which line, which character, which reading" in the Notes column as a work log, and hand it to the client to fix their dictionary / SSML in their own TTS pipeline.<br>'+
+        '<b>A separate demo row sits under the header (重庆 → 崇庆):</b> click <code>♀ F</code> to hear the adjusted reading, then "Original" to compare with 重庆市. <b>Checking "Manual review done" locks the whole row immediately</b> (all text boxes and edit buttons are disabled to prevent accidental changes; preview stays clickable as read-only), uncheck to unlock; importing source text skips locked rows. The demo row is fixed and excluded from import / export / clear.',
+      lblFemale:'Female voice', lblMale:'Male voice', lblRate:'Speed',
+      btnStopAll:'■ Stop all', btnImport:'Import from paste area', btnCsv:'Export CSV (Excel-ready)',
+      btnJson:'Export JSON backup', lblImportBackup:'Import backup', btnReset:'Clear content', saveInit:'Not saved yet',
+      btnDelivery:'Export client delivery view',
+      btnDeliveryTitle:'Generate an English delivery report for the client; Notes are included verbatim, so keep them client-safe',
+      flashDelivery:'Client delivery view exported (English HTML report, no pronunciation strings or internal flags)',
+      btnLock:'Lock all', btnUnlock:'Unlock',
+      lockBar:'All rows are locked - click Unlock at the top to edit',
+      lockNoteAll:'Locked globally - unlock at top',
+      flashLocked:'All rows locked; preview still available', flashUnlocked:'Unlocked - you can edit again',
+      authorLine:'Created by Siyuan Zheng &middot; <a href="https://www.upwork.com/freelancers/~01dcb0ebfb63cafa8d" target="_blank" rel="noopener">Upwork profile</a>',
+      pastePh:'Paste from Excel / a spreadsheet here: Tab-separated, column 1 = English, column 2 = Chinese, column 3 (optional) = pronunciation string. A single column fills Chinese only. One line = one row number.',
+      importNote:'Import only overwrites "English / Chinese / Pronunciation string"; preview flags, notes and review marks are kept. <b>Rows locked by manual review are skipped.</b>',
+      thNo:'No.<small>Maps to source<br>Do not reorder</small>',
+      thEn:'English<small>Paste source as-is<br>Do not edit</small>',
+      thZh:'Chinese (delivery)<small>Final translation, untouched<br>Text accuracy only</small>',
+      thRead:'Pronunciation string<small>Empty = Chinese / filled = this cell<br>Change readings here</small>',
+      thPlay:'Preview<small>Female / Male / Stop<br>Shows active cell</small>',
+      thReview:'Manual review<small>Check = lock whole row<br>Uncheck = unlock</small>',
+      thNote:'Notes<small>Work log / revisions, staff notes<br>Plain text, no effect on reading</small>',
+      cheatSummary:'Common polyphonic characters / number reading (reference; adjust in the "Pronunciation string" column)',
+      cheatBody:'<code>重|chóng|重复</code> (重庆 chóng qìng)　<code>六|lù|六安</code> (place name)　<code>丽|lí|丽水</code> (place name)<br>'+
+        '<code>番|pān|番禺</code> (place name)　<code>铅|yán|铅山</code> (place name)　<code>台|tāi|台州</code> (place name)　<code>蚌|bèng|蚌埠</code> (place name)<br>'+
+        '<code>华|huà|华山</code>　<code>燕|yān|燕京</code>　<code>厦|xià|厦门</code>　<code>乐|yuè|音乐</code> / <code>乐|lè|快乐</code><br>'+
+        '<span style="color:var(--warn)">Number reading: in phone numbers <b>1</b> is often read 「幺 yāo」 and <b>0</b> as 「洞 dòng」; <b>110</b> is read 「幺幺零」, not 「一百一十」. Announcement scripts must be written in spoken form, not just Arabic digits.</span><br>'+
+        '<span style="color:var(--muted)">Romanized leftovers (Incheon / Myeongdong, etc.) must be replaced with standard Chinese names, otherwise a Chinese TTS will read them with a Chinese accent and it shows immediately.</span>',
+      footer:'This file is a local proofreading tool with no contact details, external links or external resources; all styles and scripts are inline and it works offline.<br>'+
+        'Preview uses the browser built-in speech synthesis: voices marked "local" are synthesized on this machine; if you pick a voice marked "network", the text may be sent by the browser to a speech service - do not paste sensitive content.<br>'+
+        'Data is saved automatically in this browser localStorage; before switching browsers or clearing cache, use "Export JSON backup" first. After a contract is in place, deliver files via the Upwork workroom.',
+      optAuto:'Auto (by voice name)', optLocal:' - local', optNet:' - network',
+      voiceOk:'{n} local voices available (all languages)', voiceNone:'No local voice found: install a voice pack for the language you need in system settings',
+      phEn:'English source', phZh:'Simplified Chinese translation (delivery, do not edit)',
+      phRead:'Empty = read Chinese; enter a homophone / spoken number to change the reading',
+      phNote:'Work log: first pass / revision / staff / handover notes...',
+      btnPlayF:'F', btnPlayM:'M', btnStop:'■',
+      titlePlayF:'Preview the active text with a female voice', titlePlayM:'Preview the active text with a male voice', titleStop:'Stop reading',
+      chkListened:'Previewed', chkReviewed:'Manual review done',
+      btnCopyZh:'Copy Chinese', btnClearRead:'Clear',
+      titleCopyZh:'Copy the Chinese cell as a pronunciation draft', titleClearRead:'Clear the pronunciation string and read Chinese again',
+      tagReviewed:'Reviewed', tagTodo:'Not reviewed',
+      srcOn:'Reading: pronunciation string', srcOff:'Reading: Chinese', lockNote:'Locked - uncheck to edit',
+      statsTpl:'Rows <b>{n}</b>　-　Previewed <b>{l}</b>　-　Adjusted <b class="read">{r}</b>　-　Reviewed <b class="ok">{v}</b> / {n}',
+      genderF:'Female', genderM:'Male', voiceDefault:'System default',
+      flashSaved:'Auto-saved {t}', flashSaveFail:'Save failed: {m}',
+      flashReady:'Ready: 193 empty rows, waiting for source text',
+      flashEmpty:'Active text is empty - nothing to preview',
+      flashNoTts:'This browser does not support speech synthesis - use Edge / Chrome',
+      flashSpeaking:'{g} preview: {v}', flashStopped:'Reading stopped', flashStopAll:'All reading stopped',
+      flashCopied:'Chinese cell copied as a pronunciation draft - change a few characters to alter the reading',
+      flashClearedRead:'Pronunciation string cleared - preview reads the Chinese cell again',
+      flashPasteEmpty:'Paste area is empty',
+      flashImported:'Imported {n} rows{skip} (English / Chinese / pronunciation string); notes and review marks kept',
+      flashSkip:', skipped {m} locked rows',
+      flashCsv:'CSV exported (with BOM - opens in Excel without mojibake)',
+      flashJson:'JSON backup exported', flashRestored:'Backup restored, {n} rows',
+      flashImportFail:'Import failed: {m}', errNoRows:'No rows in backup',
+      flashClearedAll:'All content cleared; 193 empty rows kept',
+      confirmClear:'Clear all content?\n\nThis will erase English, Chinese, pronunciation strings, notes, preview flags and review marks across 193 rows. This cannot be undone.\nWe recommend clicking "Export JSON backup" first, then clearing.\n\nThe table will keep 193 empty rows.',
+      csvHead:['No.','English','Chinese (delivery)','Pronunciation string','Read source','Preview','Notes','Manual review done'],
+      csvSrcRead:'Pronunciation string', csvSrcZh:'Chinese', csvListened:'Previewed', csvNotListened:'Not previewed',
+      csvYes:'Yes', csvNo:'No',
+      demoBadge:'DEMO', demoEn:'[Sample source] Chongqing', demoZh:'重庆市', demoRead:'崇庆市',
+      demoTip:'Pronunciation string: the homophone 「崇」 changes how 「重」 is read',
+      demoOrig:'Original', demoSrc:'Reading: pronunciation string',
+      demoReview:'Excluded from stats / import / export', demoNote:'Work log sample: first pass → revision → handover notes',
+      verTitle:'Tool version',
+      verInfo:'Current version: v{v}. This is a single offline file. It never connects automatically and your data stays in this browser only.',
+      verCheck:'Check for a newer version (requires internet)',
+      verCancel:'Cancel',
+      verNotConfigured:'No version URL is configured yet, so no connection was made.'
+    },
+    ko: {
+      title:'중국어 안내문 · TTS 시청 및 발음 교정표',
+      h1:'중국어 안내문 · TTS 시청 및 발음 교정표',
+      sub:'오프라인 단일 파일 · 193행 줄별 시청 / 발음 교정으로 읽기 변경 / 검수 잠금으로 오작동 방지 · 데이터는 이 브라우저에만 저장되며 업로드되지 않음',
+      langTitle:'인터페이스 언어',
+      noticeSummary:'사용 안내 · 발음 교정 / 검수 잠금 (펼치기)<span class="fold-hint">표 머리 아래 별도 예시 행 있음 · ♀ 여 버튼으로 바로 시청</span>',
+      noticeBody:'<b>발음 교정이 시청 읽기를 바꾸는 원리:</b> 브라우저 음성 합성은 전달받은 텍스트만 읽으며, 특정 글자의 읽기를 지정하는 API가 없습니다. 병음·발음 표기·메모는 소리를 바꾸지 못합니다.<br>'+
+        '이 표는 <b>「발음 교정 문자열」</b> — <b>로컬 TTS만 읽는 대체 텍스트</b> — 로 해결합니다. 비우면 「중국어」 칸을 읽고, 동음자나 구어체 숫자(예: <code>重→崇</code>, <code>110→幺幺零</code>)를 넣으면 <b>시청이 즉시 이 칸을 읽어 발음이 바로 달라집니다</b>. 「중국어 (납품)」 칸은 <b>한 글자도 수정되지 않습니다</b>. 시청 열에 현재 읽는 칸이 표시됩니다.<br>'+
+        '중국어 번역문 자체는 보통 맞고 틀린 것은 TTS의 소리뿐이므로 이 열이 표의 핵심입니다. 확정 후 "몇 행 · 어떤 글자 · 어떤 읽기"를 비고 열에 작업 기록으로 남기고, 고객이 자체 TTS 파이프라인에서 사전 / SSML을 고치도록 전달하세요.<br>'+
+        '<b>표 머리 아래 별도 예시 행이 있습니다 (重庆 → 崇庆):</b> <code>♀ 여</code> 로 교정된 읽기를 듣고 → 「원문」으로 重庆市와 비교하세요. <b>「수동 검수 완료」를 체크하면 행 전체가 즉시 잠깁니다</b>(텍스트 상자와 수정 버튼이 모두 비활성화되어 오작동을 막으며, 시청은 읽기 전용으로 계속 누를 수 있습니다). 체크를 해제하면 잠금이 풀리고, 원문 가져오기는 잠긴 행을 건너뜁니다. 예시 행은 고정되어 가져오기 / 내보내기 / 비우기에 포함되지 않습니다.',
+      lblFemale:'여성 음성', lblMale:'남성 음성', lblRate:'읽기 속도',
+      btnStopAll:'■ 모두 정지', btnImport:'아래 붙여넣기 영역에서 가져오기', btnCsv:'CSV 내보내기 (Excel용)',
+      btnJson:'JSON 백업 내보내기', lblImportBackup:'백업 가져오기', btnReset:'내용 비우기', saveInit:'저장 전',
+      btnDelivery:'고객 납품용 보기 내보내기',
+      btnDeliveryTitle:'고객용 영문 납품 보고서를 만듭니다. 비고 열이 그대로 포함되므로 대외 공개 가능한 내용만 적으세요',
+      flashDelivery:'고객 납품용 보기를 내보냈습니다 (영문 HTML 보고서, 발음 교정 문자열·내부 표시 제외)',
+      btnLock:'전체 잠금', btnUnlock:'잠금 해제',
+      lockBar:'전체 잠김 - 상단의 「잠금 해제」를 눌러야 편집할 수 있습니다',
+      lockNoteAll:'전체 잠김 · 상단에서 해제',
+      flashLocked:'모든 행이 잠겼습니다. 시청은 계속 가능합니다', flashUnlocked:'잠금 해제됨 - 편집할 수 있습니다',
+      authorLine:'Created by Siyuan Zheng &middot; <a href="https://www.upwork.com/freelancers/~01dcb0ebfb63cafa8d" target="_blank" rel="noopener">Upwork profile</a>',
+      pastePh:'Excel / 스프레드시트에서 복사해 붙여넣으세요. 탭 구분, 1열 = 영문, 2열 = 중국어, 3열(선택) = 발음 교정 문자열. 한 열만 있으면 중국어만 채웁니다. 한 줄 = 행 번호 하나.',
+      importNote:'가져오기는 「영문 / 중국어 / 발음 교정 문자열」만 덮어쓰며 시청·비고·검수 표시는 유지합니다. <b>수동 검수로 잠긴 행은 건너뜁니다.</b>',
+      thNo:'행 번호<small>원문 대응<br>재배열 금지</small>',
+      thEn:'영문<small>원문 그대로<br>수정 금지</small>',
+      thZh:'중국어 (납품)<small>최종 번역문, 한 글자도 수정 금지<br>문자 정확성만 보장</small>',
+      thRead:'발음 교정 문자열<small>비움 = 중국어 / 입력 = 이 칸<br>발음 수정은 여기서</small>',
+      thPlay:'시청<small>여 / 남 / 정지<br>현재 읽는 칸 표시</small>',
+      thReview:'수동 검수<small>체크 시 행 전체 잠금<br>해제 시 잠금 해제</small>',
+      thNote:'비고<small>작업 메모 / 2차 수정·담당자 기록<br>순수 텍스트, 발음 교정 미적용</small>',
+      cheatSummary:'자주 쓰는 다음자 / 숫자 읽기 요약 (참고용; 「발음 교정 문자열」 열에서 수정)',
+      cheatBody:'<code>重|chóng|重复</code> (重庆 chóng qìng)　<code>六|lù|六安</code> (지명)　<code>丽|lí|丽水</code> (지명)<br>'+
+        '<code>番|pān|番禺</code> (지명)　<code>铅|yán|铅山</code> (지명)　<code>台|tāi|台州</code> (지명)　<code>蚌|bèng|蚌埠</code> (지명)<br>'+
+        '<code>华|huà|华山</code>　<code>燕|yān|燕京</code>　<code>厦|xià|厦门</code>　<code>乐|yuè|音乐</code> / <code>乐|lè|快乐</code><br>'+
+        '<span style="color:var(--warn)">숫자 읽기: 전화번호에서 <b>1</b>은 「幺 yāo」, <b>0</b>은 「洞 dòng」으로 읽는 경우가 많고 <b>110</b>은 「一百一十」가 아니라 「幺幺零」입니다. 안내문은 아라비아 숫자만 쓰지 말고 구어체로 작성해야 합니다.</span><br>'+
+        '<span style="color:var(--muted)">로마자 잔여물(Incheon / Myeongdong 등)은 중국어 관용 지명으로 바꿔야 합니다. 그렇지 않으면 중국어 TTS가 중국어 발음으로 억지로 읽어 바로 티가 납니다.</span>',
+      footer:'이 파일은 연락처·외부 링크·외부 리소스가 없는 로컬 교정 도구이며, 모든 스타일과 스크립트가 인라인으로 포함되어 오프라인에서도 작동합니다.<br>'+
+        '시청은 브라우저 내장 음성 합성을 사용합니다. 「로컬」 표시 음성은 이 기기에서 합성되며, 「네트워크」 표시 음성을 선택하면 텍스트가 브라우저를 통해 음성 서비스로 전송될 수 있으니 민감한 내용을 붙여넣지 마세요.<br>'+
+        '데이터는 이 브라우저의 localStorage에 자동 저장됩니다. 브라우저 변경 / 캐시 삭제 전에 「JSON 백업 내보내기」를 먼저 사용하세요. 계약 체결 후 납품은 Upwork workroom을 통해 업로드하세요.',
+      optAuto:'자동 (이름으로 판단)', optLocal:' · 로컬', optNet:' · 네트워크',
+      voiceOk:'사용 가능한 로컬 음성 {n}개 (전체 언어)', voiceNone:'로컬 음성을 찾을 수 없습니다. 시스템 설정에서 필요한 언어의 음성 팩을 설치하세요',
+      phEn:'영문 원문', phZh:'간체 중국어 번역문 (납품용, 수정 금지)',
+      phRead:'비우면 중국어 읽기 / 동음자·구어체 숫자를 넣으면 읽기 변경',
+      phNote:'작업 기록: 초교 / 2차 수정 / 담당자 / 인계 메모…',
+      btnPlayF:'여', btnPlayM:'남', btnStop:'■',
+      titlePlayF:'여성 음성으로 현재 텍스트 시청', titlePlayM:'남성 음성으로 현재 텍스트 시청', titleStop:'읽기 정지',
+      chkListened:'시청 완료', chkReviewed:'수동 검수 완료',
+      btnCopyZh:'중국어 복사', btnClearRead:'비우기',
+      titleCopyZh:'중국어 칸을 발음 교정 초안으로 복사', titleClearRead:'발음 교정 문자열을 비우고 중국어 다시 읽기',
+      tagReviewed:'✓ 검수 완료', tagTodo:'미검수',
+      srcOn:'현재 읽기: 교정 문자열', srcOff:'현재 읽기: 중국어', lockNote:'잠김 · 해제하면 편집 가능',
+      statsTpl:'총 <b>{n}</b>행　·　시청 <b>{l}</b>　·　발음 교정 <b class="read">{r}</b>　·　검수 완료 <b class="ok">{v}</b> / {n}',
+      genderF:'여성', genderM:'남성', voiceDefault:'시스템 기본',
+      flashSaved:'자동 저장 {t}', flashSaveFail:'저장 실패: {m}',
+      flashReady:'준비 완료: 193행 빈 표, 원문 붙여넣기 대기',
+      flashEmpty:'현재 텍스트가 비어 있어 시청할 내용이 없습니다',
+      flashNoTts:'이 브라우저는 음성 합성을 지원하지 않습니다. Edge / Chrome을 사용하세요',
+      flashSpeaking:'{g} 시청 중: {v}', flashStopped:'읽기 정지됨', flashStopAll:'모든 읽기 정지됨',
+      flashCopied:'중국어 칸을 발음 교정 초안으로 복사했습니다. 글자 몇 개만 바꾸면 읽기가 달라집니다',
+      flashClearedRead:'발음 교정 문자열을 비웠습니다. 시청이 중국어 칸으로 돌아갑니다',
+      flashPasteEmpty:'붙여넣기 영역이 비어 있습니다',
+      flashImported:'{n}행 가져오기 완료{skip} (영문 / 중국어 / 발음 교정 문자열), 비고 및 검수 표시 유지',
+      flashSkip:', 잠긴 {m}행 건너뜀',
+      flashCsv:'CSV 내보내기 완료 (BOM 포함, Excel에서 한글/중국어 깨짐 없음)',
+      flashJson:'JSON 백업 내보내기 완료', flashRestored:'백업 복원 완료, {n}행',
+      flashImportFail:'가져오기 실패: {m}', errNoRows:'백업에 행이 없습니다',
+      flashClearedAll:'모든 내용을 비웠습니다. 빈 행 193개 유지',
+      confirmClear:'모든 내용을 비우시겠습니까?\n\n193행의 영문, 중국어, 발음 교정 문자열, 비고, 시청 및 검수 표시가 모두 삭제됩니다. 이 작업은 되돌릴 수 없습니다.\n먼저 「JSON 백업 내보내기」로 저장한 뒤 비우시기를 권장합니다.\n\n표에는 빈 행 193개가 남습니다.',
+      csvHead:['행 번호','영문','중국어 (납품)','발음 교정 문자열','읽기 출처','시청','비고','수동 검수 완료'],
+      csvSrcRead:'교정 문자열', csvSrcZh:'중국어', csvListened:'시청 완료', csvNotListened:'미시청',
+      csvYes:'예', csvNo:'아니오',
+      demoBadge:'예시', demoEn:'[예시 원문] Chongqing', demoZh:'重庆市', demoRead:'崇庆市',
+      demoTip:'발음 교정 문자열: 동음자 「崇」로 「重」의 읽기를 바꿉니다',
+      demoOrig:'원문', demoSrc:'현재 읽기: 교정 문자열',
+      demoReview:'통계 / 가져오기 / 내보내기 제외', demoNote:'작업 기록 예시: 초교 → 2차 수정 → 인계 메모',
+      verTitle:'도구 버전',
+      verInfo:'현재 버전 v{v}. 이 도구는 오프라인 단일 파일이며 자동으로 연결되지 않고 데이터는 이 브라우저에만 저장됩니다.',
+      verCheck:'새 버전 확인 (인터넷 필요)',
+      verCancel:'취소',
+      verNotConfigured:'버전 주소가 아직 설정되지 않아 연결하지 않았습니다.'
+    }
+  };
+
+  // ja: English base + local UI overrides
+  I18N.ja = Object.assign({}, I18N.en, {
+    h1: 'TTS 音声確認・発音校正シート',
+    sub: '193 行の電話アナウンスを 1 行ずつ確認 · 校正履歴を残す',
+    langTitle: '表示言語',
+    btnStopAll: '■ すべて停止',
+    btnImport: '下の貼り付け欄から取り込む',
+    btnCsv: 'CSV 書き出し (Excel)',
+    btnJson: 'JSON バックアップ書き出し',
+    btnDelivery: '顧客向け納品ビューを書き出す',
+    btnReset: '内容を消去',
+    btnLock: '🔒 すべてロック',
+    btnUnlock: '🔓 ロック解除',
+    lockBar: '🔒 全行ロック中 · 上部の「ロック解除」で編集できます',
+    lockNoteAll: '全体ロック中 · 上部で解除',
+    lockNote: 'ロック中 · 解除で編集可',
+    lblFemale: '女性音声',
+    lblMale: '男性音声',
+    lblRate: '読み上げ速度',
+    thNo: '行番号<small>原文対応<br>並べ替え禁止</small>',
+    thEn: '英語<small>原文そのまま<br>編集禁止</small>',
+    thZh: '中国語 (納品)<small>最終訳・一字も変えない<br>文字の正確さのみ</small>',
+    thRead: '発音校正文字列<small>空=中国語 / 入力=この欄<br>読みを変える場所</small>',
+    thPlay: '試聴<small>女 / 男 / 停止<br>現在読む欄を表示</small>',
+    thReview: '手動検収<small>チェックで行をロック<br>解除でロック解除</small>',
+    thNote: '備考<small>作業メモ / 2 次修正・担当者<br>プレーンテキスト</small>',
+    noticeSummary: '使い方 · 発音校正 / 検収ロック (開く)',
+    cheatSummary: 'よくある多音字 / 数字の読み (参考)',
+    optAuto: '自動 (名前から判定)',
+    voiceOk: 'ローカル音声 {n} 個 (全言語)',
+    voiceNone: 'ローカル音声がありません。システム設定で必要な言語の音声パックを入れてください',
+    phEn: '英文原文',
+    phZh: '簡体字中国語訳 (納品・編集禁止)',
+    phRead: '空=中国語 / 同音字・口語数字で読みを変更',
+    phNote: '作業記録: 初校 / 2 次修正 / 担当者 / 引継ぎ…',
+    chkListened: '試聴済み',
+    chkReviewed: '手動検収完了',
+    tagReviewed: '検収済',
+    tagTodo: '未検収',
+    statsTpl: '全 {n} 行 · 試聴 {l} · 発音校正 {r} · 検収完了 {v} / {n}',
+    demoBadge: '例',
+    demoOrig: '原文',
+    demoReview: '統計 / 取込 / 書出の対象外',
+    saveInit: '未保存',
+    csvHead: ['行番号','英語','中国語 (納品)','発音校正文字列','読み元','試聴','備考','手動検収'],
+    flashDelivery: '顧客向け納品ビューを書き出しました (英文 HTML)'
+  });
+  // km: English base + local UI overrides
+  I18N.km = Object.assign({}, I18N.en, {
+    h1: 'សន្លឹកពិនិត្យ TTS និងកែសំឡេង',
+    sub: 'ពិនិត្យ 193 បន្ទាត់ មួយបន្ទាត់ម្តងៗ',
+    langTitle: 'ភាសាចំណុចប្រទាក់',
+    btnStopAll: '■ បញ្ឈប់ទាំងអស់',
+    btnImport: 'នាំចូលពីប្រអប់បិទភ្ជាប់',
+    btnCsv: 'នាំចេញ CSV',
+    btnJson: 'នាំចេញបម្រុង JSON',
+    btnDelivery: 'នាំចេញទិដ្ឋភាពសម្រាប់អតិថិជន',
+    btnReset: 'លុបមាតិកា',
+    btnLock: '🔒 ចាក់សោទាំងអស់',
+    btnUnlock: '🔓 ដោះសោ',
+    lockBar: '🔒 ជួរទាំងអស់ត្រូវបានចាក់សោ · ចុច «ដោះសោ» ខាងលើដើម្បីកែ',
+    lockNoteAll: 'ចាក់សោរួម · ដោះសោខាងលើ',
+    lockNote: 'បានចាក់សោ · ដោះដើម្បីកែ',
+    lblFemale: 'សំឡេងស្រី',
+    lblMale: 'សំឡេងប្រុស',
+    lblRate: 'ល្បឿន',
+    thNo: 'ល.រ<small>ត្រូវនឹងដើម<br>កុំរៀបឡើងវិញ</small>',
+    thEn: 'អង់គ្លេស<small>ដើមដដែល<br>កុំកែ</small>',
+    thZh: 'ចិន (ប្រគល់)<small>បកប្រែចុងក្រោយ<br>ត្រឹមត្រូវតែអក្សរ</small>',
+    thRead: 'អក្សរកែសំឡេង<small>ទុកទំនេរ=ចិន<br>កែសំឡេងនៅទីនេះ</small>',
+    thPlay: 'ស្តាប់<small>ស្រី / ប្រុស / ឈប់<br>បង្ហាញប្រអប់ដែលកំពុងអាន</small>',
+    thReview: 'ពិនិត្យដោយដៃ<small>ធីក=ចាក់សោជួរ<br>ដោះ=ដោះសោ</small>',
+    thNote: 'កំណត់ចំណាំ<small>កំណត់ការងារ<br>អត្ថបទធម្មតា</small>',
+    noticeSummary: 'របៀបប្រើ · កែសំឡេង / ចាក់សោ (ចុចបើក)',
+    cheatSummary: 'អក្សរពហុសំឡេង / ការអានលេខ (យោង)',
+    optAuto: 'ស្វ័យប្រវត្តិ (តាមឈ្មោះ)',
+    voiceOk: 'សំឡេងក្នុងម៉ាស៊ីន {n} (គ្រប់ភាសា)',
+    voiceNone: 'រកមិនឃើញសំឡេង · សូមដំឡើងកញ្ចប់សំឡេងក្នុងការកំណត់ប្រព័ន្ធ',
+    phEn: 'អត្ថបទដើមអង់គ្លេស',
+    phZh: 'បកប្រែចិន (ប្រគល់ កុំកែ)',
+    phRead: 'ទុកទំនេរ=អានចិន / បញ្ចូលដើម្បីប្តូរសំឡេង',
+    phNote: 'កំណត់ការងារ: ពិនិត្យលើកដំបូង / កែលើកទី 2 / អ្នកទទួល…',
+    chkListened: 'បានស្តាប់',
+    chkReviewed: 'ពិនិត្យដោយដៃរួច',
+    tagReviewed: 'ពិនិត្យហើយ',
+    tagTodo: 'មិនទាន់',
+    statsTpl: 'សរុប {n} ជួរ · បានស្តាប់ {l} · កែសំឡេង {r} · ពិនិត្យ {v} / {n}',
+    demoBadge: 'ឧទាហរណ៍',
+    demoOrig: 'ដើម',
+    demoReview: 'មិនរាប់ក្នុងស្ថិតិ / នាំចូល / នាំចេញ',
+    saveInit: 'មិនទាន់រក្សា',
+    csvHead: ['ល.រ','អង់គ្លេស','ចិន (ប្រគល់)','អក្សរកែសំឡេង','ប្រភពអាន','ស្តាប់','កំណត់ចំណាំ','ពិនិត្យដោយដៃ'],
+    flashDelivery: 'បាននាំចេញទិដ្ឋភាពសម្រាប់អតិថិជន (HTML អង់គ្លេស)'
+  });
+  // fil: English base + local UI overrides
+  I18N.fil = Object.assign({}, I18N.en, {
+    h1: 'TTS Review at Pagwawasto ng Bigkas',
+    sub: '193 linya, sinusuri isa-isa · may tala ng rebisyon',
+    langTitle: 'Wika ng interface',
+    btnStopAll: '■ Ihinto lahat',
+    btnImport: 'I-import mula sa paste area',
+    btnCsv: 'I-export ang CSV (Excel)',
+    btnJson: 'I-export ang JSON backup',
+    btnDelivery: 'I-export ang client delivery view',
+    btnReset: 'I-clear ang laman',
+    btnLock: '🔒 I-lock lahat',
+    btnUnlock: '🔓 I-unlock',
+    lockBar: '🔒 Naka-lock ang lahat · i-click ang «I-unlock» sa itaas para makapag-edit',
+    lockNoteAll: 'Naka-lock lahat · i-unlock sa itaas',
+    lockNote: 'Naka-lock · i-unlock para makapag-edit',
+    lblFemale: 'Boses babae',
+    lblMale: 'Boses lalaki',
+    lblRate: 'Bilis',
+    thNo: 'Blg.<small>Tugma sa source<br>Huwag i-reorder</small>',
+    thEn: 'English<small>Source nang buo<br>Huwag i-edit</small>',
+    thZh: 'Chinese (ihahatid)<small>Huling salin, hindi binabago<br>Tama ang teksto lamang</small>',
+    thRead: 'String ng bigkas<small>Blangko=Chinese / puno=ito<br>Dito itinatama ang bigkas</small>',
+    thPlay: 'Pakinig<small>Babae / Lalaki / Ihinto<br>Ipinapakita ang binabasa</small>',
+    thReview: 'Manwal na review<small>Check=i-lock ang row<br>Alisin=i-unlock</small>',
+    thNote: 'Tala<small>Tala sa trabaho / rebisyon<br>Plain text lamang</small>',
+    noticeSummary: 'Paano gamitin · bigkas / review lock (i-click para buksan)',
+    cheatSummary: 'Karaniwang polyphonic character / pagbasa ng numero (sanggunian)',
+    optAuto: 'Awtomatiko (ayon sa pangalan)',
+    voiceOk: '{n} lokal na boses (lahat ng wika)',
+    voiceNone: 'Walang lokal na boses · mag-install ng voice pack sa system settings',
+    phEn: 'English source',
+    phZh: 'Simplified Chinese (ihahatid, huwag i-edit)',
+    phRead: 'Blangko=Chinese / maglagay ng homophone para baguhin ang bigkas',
+    phNote: 'Tala: unang pagsusuri / ika-2 rebisyon / tagapaghanda…',
+    chkListened: 'Napakinggan',
+    chkReviewed: 'Tapos ang manwal na review',
+    tagReviewed: 'Na-review',
+    tagTodo: 'Hindi pa',
+    statsTpl: 'Kabuuang {n} linya · napakinggan {l} · binigkas {r} · na-review {v} / {n}',
+    demoBadge: 'HALIMBAWA',
+    demoOrig: 'Orihinal',
+    demoReview: 'Hindi kasama sa stats / import / export',
+    saveInit: 'Hindi pa na-save',
+    csvHead: ['Blg.','English','Chinese (ihahatid)','String ng bigkas','Pinagmulan','Pakinig','Tala','Manwal na review'],
+    flashDelivery: 'Na-export ang client delivery view (English HTML)'
+  });
+  // my: English base + local UI overrides
+  I18N.my = Object.assign({}, I18N.en, {
+    h1: 'TTS နားထောင်စစ်ဆေးမှုနှင့် အသံပြင်ဆင်ဇယား',
+    sub: 'ကြောင်း ၁၉၃ ကို တစ်ကြောင်းချင်း စစ်ဆေးသည်',
+    langTitle: 'မျက်နှာပြင်ဘာသာစကား',
+    btnStopAll: '■ အားလုံးရပ်',
+    btnImport: 'အောက်က ကူးထည့်ရာမှ ထည့်သွင်း',
+    btnCsv: 'CSV ထုတ်ယူ (Excel)',
+    btnJson: 'JSON backup ထုတ်ယူ',
+    btnDelivery: 'ဖောက်သည်အတွက် ပေးပို့မှုမြင်ကွင်း ထုတ်ယူ',
+    btnReset: 'အကြောင်းအရာ ရှင်းလင်း',
+    btnLock: '🔒 အားလုံး လော့ခ်ချ',
+    btnUnlock: '🔓 လော့ခ်ဖွင့်',
+    lockBar: '🔒 အတန်းအားလုံး လော့ခ်ကျနေသည် · ပြင်ဆင်ရန် အပေါ်က «လော့ခ်ဖွင့်» ကိုနှိပ်ပါ',
+    lockNoteAll: 'အားလုံး လော့ခ်ကျ · အပေါ်မှ ဖွင့်ပါ',
+    lockNote: 'လော့ခ်ကျ · ဖွင့်လျှင် ပြင်နိုင်',
+    lblFemale: 'အမျိုးသမီးအသံ',
+    lblMale: 'အမျိုးသားအသံ',
+    lblRate: 'အမြန်နှုန်း',
+    thNo: 'အမှတ်<small>မူရင်းနှင့် ကိုက်ညီ<br>ပြန်မစီပါနှင့်</small>',
+    thEn: 'အင်္ဂလိပ်<small>မူရင်းအတိုင်း<br>မပြင်ပါနှင့်</small>',
+    thZh: 'တရုတ် (ပေးပို့)<small>နောက်ဆုံးဘာသာပြန်<br>စာသားမှန်ကန်မှုသာ</small>',
+    thRead: 'အသံပြင်စာကြောင်း<small>ဗလာ=တရုတ် / ထည့်=ဤအကွက်<br>အသံပြင်ရာနေရာ</small>',
+    thPlay: 'နားထောင်<small>မ / ကျား / ရပ်<br>ဖတ်နေသည့်အကွက် ပြသည်</small>',
+    thReview: 'လက်ဖြင့် စစ်ဆေး<small>အမှန်ခြစ်=အတန်း လော့ခ်<br>ဖြုတ်=လော့ခ်ဖွင့်</small>',
+    thNote: 'မှတ်ချက်<small>အလုပ်မှတ်တမ်း / ပြင်ဆင်မှု<br>စာသားသာ</small>',
+    noticeSummary: 'အသုံးပြုနည်း · အသံပြင် / စစ်ဆေးလော့ခ် (ဖွင့်ရန်နှိပ်)',
+    cheatSummary: 'အသံများသော စာလုံး / ဂဏန်းဖတ်နည်း (ကိုးကား)',
+    optAuto: 'အလိုအလျောက် (အမည်အလိုက်)',
+    voiceOk: 'စက်တွင်း အသံ {n} ခု (ဘာသာအားလုံး)',
+    voiceNone: 'စက်တွင်း အသံ မတွေ့ပါ · system settings တွင် voice pack ထည့်သွင်းပါ',
+    phEn: 'အင်္ဂလိပ် မူရင်း',
+    phZh: 'ရိုးရှင်းတရုတ် ဘာသာပြန် (ပေးပို့၊ မပြင်ရ)',
+    phRead: 'ဗလာ=တရုတ်ဖတ် / ထည့်လျှင် အသံပြောင်း',
+    phNote: 'အလုပ်မှတ်တမ်း: ပထမစစ် / ဒုတိယပြင် / လွှဲပြောင်း…',
+    chkListened: 'နားထောင်ပြီး',
+    chkReviewed: 'လက်ဖြင့် စစ်ဆေးပြီး',
+    tagReviewed: 'စစ်ပြီး',
+    tagTodo: 'မစစ်ရသေး',
+    statsTpl: 'စုစုပေါင်း {n} ကြောင်း · နားထောင် {l} · အသံပြင် {r} · စစ်ဆေး {v} / {n}',
+    demoBadge: 'နမူနာ',
+    demoOrig: 'မူရင်း',
+    demoReview: 'စာရင်း / ထည့်သွင်း / ထုတ်ယူတွင် မပါ',
+    saveInit: 'မသိမ်းရသေး',
+    csvHead: ['အမှတ်','အင်္ဂလိပ်','တရုတ် (ပေးပို့)','အသံပြင်စာကြောင်း','ဖတ်ရင်းမြစ်','နားထောင်','မှတ်ချက်','လက်ဖြင့်စစ်ဆေး'],
+    flashDelivery: 'ဖောက်သည်အတွက် ပေးပို့မှုမြင်ကွင်း ထုတ်ယူပြီး (အင်္ဂလိပ် HTML)'
+  });
+  // mn: English base + local UI overrides
+  I18N.mn = Object.assign({}, I18N.en, {
+    h1: 'TTS сонсож шалгах, дуудлага засах хүснэгт',
+    sub: '193 мөрийг нэг нэгээр шалгана · засварын тэмдэглэлтэй',
+    langTitle: 'Интерфейсийн хэл',
+    btnStopAll: '■ Бүгдийг зогсоох',
+    btnImport: 'Доорх буулгах хэсгээс оруулах',
+    btnCsv: 'CSV экспорт (Excel)',
+    btnJson: 'JSON нөөцлөлт экспорт',
+    btnDelivery: 'Харилцагчийн хүргэлтийн харагдцыг экспорт',
+    btnReset: 'Агуулгыг цэвэрлэх',
+    btnLock: '🔒 Бүгдийг түгжих',
+    btnUnlock: '🔓 Түгжээ тайлах',
+    lockBar: '🔒 Бүх мөр түгжигдсэн · засахын тулд дээд талын «Түгжээ тайлах» дарна уу',
+    lockNoteAll: 'Бүгд түгжигдсэн · дээрээс тайлна',
+    lockNote: 'Түгжигдсэн · тайлж болно',
+    lblFemale: 'Эмэгтэй хоолой',
+    lblMale: 'Эрэгтэй хоолой',
+    lblRate: 'Хурд',
+    thNo: 'Дугаар<small>Эхтэй таарна<br>Дахин эрэмбэлэхгүй</small>',
+    thEn: 'Англи<small>Эх хэвээр<br>Засахгүй</small>',
+    thZh: 'Хятад (хүргэлт)<small>Эцсийн орчуулга<br>Зөвхөн үсгийн зөв</small>',
+    thRead: 'Дуудлага засах мөр<small>Хоосон=Хятад / бичсэн=энэ<br>Дуудлага энд засна</small>',
+    thPlay: 'Сонсох<small>Эм / Эр / Зогс<br>Уншиж буй нүд харуулна</small>',
+    thReview: 'Гараар шалгах<small>Тэмдэглэл=мөр түгжих<br>Арилгах=тайлах</small>',
+    thNote: 'Тэмдэглэл<small>Ажлын тэмдэглэл / засвар<br>Энгийн текст</small>',
+    noticeSummary: 'Хэрэглэх заавар · дуудлага / шалгах түгжээ (нээх)',
+    cheatSummary: 'Олон дуудлагат үсэг / тоо унших (лавлагаа)',
+    optAuto: 'Автомат (нэрээр)',
+    voiceOk: 'Локал хоолой {n} (бүх хэл)',
+    voiceNone: 'Локал хоолой олдсонгүй · системийн тохиргоонд voice pack суулгана уу',
+    phEn: 'Англи эх',
+    phZh: 'Хялбаршуулсан хятад орчуулга (хүргэлт, засахгүй)',
+    phRead: 'Хоосон=Хятад / ижил дуудлагат үсгээр дуудлага өөрчилнө',
+    phNote: 'Ажлын тэмдэглэл: анхны шалгалт / 2 дахь засвар / шилжүүлэг…',
+    chkListened: 'Сонссон',
+    chkReviewed: 'Гараар шалгасан',
+    tagReviewed: 'Шалгасан',
+    tagTodo: 'Шалгаагүй',
+    statsTpl: 'Нийт {n} мөр · сонссон {l} · дуудлага зассан {r} · шалгасан {v} / {n}',
+    demoBadge: 'ЖИШЭЭ',
+    demoOrig: 'Эх',
+    demoReview: 'Статистик / импорт / экспортод орохгүй',
+    saveInit: 'Хадгалаагүй',
+    csvHead: ['Дугаар','Англи','Хятад (хүргэлт)','Дуудлага засах мөр','Унших эх','Сонсох','Тэмдэглэл','Гараар шалгах'],
+    flashDelivery: 'Харилцагчийн хүргэлтийн харагдцыг экспортлосон (Англи HTML)'
+  });
+  var lang = 'zh';
+  function t(k, vars){
+    var s = (I18N[lang] && I18N[lang][k] != null) ? I18N[lang][k]
+          : (I18N.zh[k] != null ? I18N.zh[k] : k);
+    if(vars) Object.keys(vars).forEach(function(v){ s = s.split('{' + v + '}').join(vars[v]); });
+    return s;
+  }
+  function applyStaticLang(){
+    document.querySelectorAll('[data-i18n]').forEach(function(el){ el.textContent = t(el.dataset.i18n); });
+    document.querySelectorAll('[data-i18n-html]').forEach(function(el){ el.innerHTML = t(el.dataset.i18nHtml); });
+    document.querySelectorAll('[data-i18n-ph]').forEach(function(el){ el.placeholder = t(el.dataset.i18nPh); });
+    document.querySelectorAll('[data-i18n-title]').forEach(function(el){ el.title = t(el.dataset.i18nTitle); });
+    document.documentElement.lang = (lang === 'ko' ? 'ko' : lang === 'en' ? 'en' : 'zh-CN');
+  }
+  function markLangButtons(){
+    var sel = document.getElementById('langSelect');
+    if(sel) sel.value = lang;
+  }
+  function setLang(l){
+    if(!I18N[l]) return;
+    closeVerPanel();
+    lang = l;
+    state.settings.lang = l;
+    applyStaticLang();
+    markLangButtons();
+    applyGlobalLock();
+    fillVoiceSelects();
+    buildRows();
+    save();
+  }
+  function applyGlobalLock(){
+    var on = !!state.settings.lockedAll;
+    document.body.classList.toggle('locked-all', on);
+    var btn = document.getElementById('btnLockAll');
+    btn.textContent = on ? t('btnUnlock') : t('btnLock');
+    btn.classList.toggle('primary', on);
+    ['btnImport','btnReset','fileJson','pasteArea'].forEach(function(id){
+      var el = document.getElementById(id); if(el) el.disabled = on;
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('#tbody tr'), function(tr, i){
+      if(state.rows[i]) updateRowUI(tr, state.rows[i]);
+    });
+  }
+
+  var state = { rows:[], settings:{ female:'', male:'', rate:0.9, lang:'zh', lockedAll:false } };
+  var tbody = document.getElementById('tbody');
+  var saveTimer = null;
+
+  function blank(n){
+    return { no:n, en:'', zh:'', read:'', listened:false, note:'', reviewed:false };
+  }
+  // 兼容旧版：poly 数组 / problem / revision 转成纯文本工作留痕（数据层，保持中文），status 作废
+  function migrate(r){
+    var o = Object.assign(blank(r.no || 1), r);
+    if(!String(o.note||'').trim() && (o.poly || o.problem || o.revision)){
+      var parts = [];
+      (o.poly || []).forEach(function(x){
+        var w = (x.word || x.char || '').trim();
+        if(w) parts.push('多音字：' + [x.char || '', x.pinyin || '', w].join(' / '));
+      });
+      if(o.problem) parts.push('问题：' + o.problem);
+      if(o.revision) parts.push('修订：' + o.revision);
+      o.note = parts.join('\n');
+    }
+    delete o.poly; delete o.problem; delete o.revision; delete o.status;
+    return o;
+  }
+  function flash(msg){ document.getElementById('saveState').textContent = msg; }
+  function save(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function(){
+      try{
+        localStorage.setItem(KEY, JSON.stringify(state));
+        flash(t('flashSaved', { t: new Date().toLocaleTimeString('zh-CN') }));
+      }catch(e){ flash(t('flashSaveFail', { m: e.message })); }
+    }, 400);
+  }
+  function load(){
+    try{
+      var raw = localStorage.getItem(KEY);
+      if(raw){
+        var d = JSON.parse(raw);
+        if(d && Array.isArray(d.rows) && d.rows.length){
+          state.rows = d.rows.map(function(r,i){ r.no = i+1; return migrate(r); });
+          state.settings = Object.assign({ female:'', male:'', rate:0.9, lang:'zh', lockedAll:false }, d.settings || {});
+          // 旧版把示范塞在第 1 行数据里；示范已移到独立行，精确清掉这条旧痕迹
+          if(state.rows[0] && /^【示范】/.test(String(state.rows[0].en || ''))){
+            state.rows[0] = blank(1);
+          }
+          return;
+        }
+      }
+    }catch(e){}
+    state.rows = [];
+    for(var i=1;i<=DEFAULT_ROWS;i++) state.rows.push(blank(i));
+  }
+  // 试读实际读的文本：校音串优先，否则中文
+  function sourceOf(r){
+    var s = String(r.read || '').trim();
+    return s ? s : String(r.zh || '');
+  }
+  function hasRead(r){ return String(r.read || '').trim() !== ''; }
+
+  // 审核完成 = 整行锁定；只留「人工审核完成」checkbox 作为解锁入口，
+  // 试听按钮是只读操作，保留可用
+  function setRowLocked(tr, locked, globalLock){
+    tr.classList.toggle('row-locked', !!locked);
+    var els = tr.querySelectorAll('textarea, select, input[type=checkbox], button[data-act]');
+    Array.prototype.forEach.call(els, function(el){
+      // 非全局锁时，审核框是行级锁的唯一解锁入口：必须显式启用，
+      // 否则「锁定全部」期间写入的 disabled=true 会在解锁后残留，导致审核框点不动
+      if(el.dataset && el.dataset.f === 'reviewed' && !globalLock){ el.disabled = false; return; }
+      var act = el.dataset ? el.dataset.act : '';
+      if(act === 'play-f' || act === 'play-m' || act === 'stop') return;
+      el.disabled = !!locked;
+    });
+    var note = tr.querySelector('[data-role=lockNote]');
+    if(note) note.textContent = locked ? (globalLock ? t('lockNoteAll') : t('lockNote')) : '';
+  }
+  function updateRowUI(tr, r){
+    var tag = tr.querySelector('[data-role=reviewTag]');
+    tag.textContent = r.reviewed ? t('tagReviewed') : t('tagTodo');
+    tag.className = 'tag ' + (r.reviewed ? 'ok' : 'todo');
+    var src = tr.querySelector('[data-role=srcTag]');
+    var on = hasRead(r);
+    src.textContent = on ? t('srcOn') : t('srcOff');
+    src.className = 'src' + (on ? ' on' : '');
+    setRowLocked(tr, !!r.reviewed || !!state.settings.lockedAll, !!state.settings.lockedAll);
+  }
+  function fillRow(tr, r){
+    tr.querySelector('[data-f=en]').value = r.en || '';
+    tr.querySelector('[data-f=zh]').value = r.zh || '';
+    tr.querySelector('[data-f=read]').value = r.read || '';
+    tr.querySelector('[data-f=note]').value = r.note || '';
+    tr.querySelector('[data-f=listened]').checked = !!r.listened;
+    tr.querySelector('[data-f=reviewed]').checked = !!r.reviewed;
+    updateRowUI(tr, r);
+  }
+  function buildRows(){
+    tbody.innerHTML = '';
+    var frag = document.createDocumentFragment();
+    state.rows.forEach(function(r){
+      var tr = document.createElement('tr');
+      tr.dataset.i = String(r.no - 1);
+      tr.innerHTML =
+        '<td class="no"><b>'+r.no+'</b></td>'+
+        '<td><textarea data-f="en" spellcheck="false" placeholder="'+t('phEn')+'"></textarea></td>'+
+        '<td><textarea data-f="zh" spellcheck="false" placeholder="'+t('phZh')+'"></textarea></td>'+
+        '<td><textarea data-f="read" spellcheck="false" placeholder="'+t('phRead')+'"></textarea>'+
+            '<div class="mini"><button type="button" data-act="copy-zh" title="'+t('titleCopyZh')+'">'+t('btnCopyZh')+'</button>'+
+            '<button type="button" data-act="clear-read" title="'+t('titleClearRead')+'">'+t('btnClearRead')+'</button></div></td>'+
+        '<td><div class="play-row">'+
+            '<button type="button" class="f" data-act="play-f" title="'+t('titlePlayF')+'">'+t('btnPlayF')+'</button>'+
+            '<button type="button" class="m" data-act="play-m" title="'+t('titlePlayM')+'">'+t('btnPlayM')+'</button>'+
+            '<button type="button" data-act="stop" title="'+t('titleStop')+'">'+t('btnStop')+'</button>'+
+          '</div><label class="chk"><input type="checkbox" data-f="listened"> '+t('chkListened')+'</label>'+
+          '<span class="src" data-role="srcTag"></span></td>'+
+        '<td><label class="chk"><input type="checkbox" data-f="reviewed"> '+t('chkReviewed')+'</label>'+
+            '<span class="tag" data-role="reviewTag"></span>'+
+            '<div class="lock-note" data-role="lockNote"></div></td>'+
+        '<td><textarea data-f="note" spellcheck="false" placeholder="'+t('phNote')+'"></textarea></td>';
+      frag.appendChild(tr);
+    });
+    tbody.appendChild(frag);
+    Array.prototype.forEach.call(tbody.children, function(tr,i){ fillRow(tr, state.rows[i]); });
+    updateStats();
+  }
+  function updateStats(){
+    var n = state.rows.length;
+    var listened = state.rows.filter(function(r){ return r.listened; }).length;
+    var read = state.rows.filter(hasRead).length;
+    var reviewed = state.rows.filter(function(r){ return r.reviewed; }).length;
+    document.getElementById('stats').innerHTML = t('statsTpl', { n:n, l:listened, r:read, v:reviewed });
+  }
+
+  var LANG_BCP47 = { zh:'zh-CN', en:'en-US', ko:'ko-KR', ja:'ja-JP', km:'km-KH', fil:'fil-PH', my:'my-MM', mn:'mn-MN' };
+  function allVoices(){
+    if(!('speechSynthesis' in window)) return [];
+    return speechSynthesis.getVoices() || [];
+  }
+  function fillVoiceSelects(){
+    var vs = allVoices();
+    ['female','male'].forEach(function(g){
+      var sel = document.getElementById(g+'Voice');
+      var cur = state.settings[g] || '';
+      sel.innerHTML = '';
+      var o0 = document.createElement('option');
+      o0.value = ''; o0.textContent = t('optAuto');
+      sel.appendChild(o0);
+      vs.forEach(function(v){
+        var o = document.createElement('option');
+        o.value = v.name;
+        o.textContent = v.name + ' [' + (v.lang || '') + ']' + (v.localService ? t('optLocal') : t('optNet'));
+        sel.appendChild(o);
+      });
+      sel.value = cur;
+    });
+    document.getElementById('voiceStatus').textContent = vs.length
+      ? t('voiceOk', { n: vs.length })
+      : t('voiceNone');
+  }
+  function pickVoice(g){
+    var vs = allVoices();
+    if(!vs.length) return null;
+    var pref = state.settings[g];
+    if(pref){
+      var hit = vs.filter(function(v){ return v.name === pref; })[0];
+      if(hit) return hit;
+    }
+    var want = LANG_BCP47[lang] || 'zh-CN';
+    var same = vs.filter(function(v){ return (v.lang || '').toLowerCase().indexOf(want.slice(0,2).toLowerCase()) === 0; });
+    var pool = same.length ? same : vs;
+    var re = (g === 'female') ? FEMALE : MALE;
+    var other = (g === 'female') ? MALE : FEMALE;
+    return pool.filter(function(v){ return re.test(v.name); })[0]
+        || pool.filter(function(v){ return !other.test(v.name); })[0]
+        || pool[0];
+  }
+  function speak(text, gender){
+    if(!String(text||'').trim()){ flash(t('flashEmpty')); return; }
+    if(!('speechSynthesis' in window)){ flash(t('flashNoTts')); return; }
+    try{ speechSynthesis.cancel(); }catch(e){}
+    var u = new SpeechSynthesisUtterance(String(text));
+    u.rate = parseFloat(state.settings.rate) || 0.9;
+    u.pitch = 1;
+    var v = pickVoice(gender);
+    u.lang = v ? (v.lang || 'zh-CN') : (LANG_BCP47[lang] || 'zh-CN');
+    if(v) u.voice = v;
+    speechSynthesis.speak(u);
+    flash(t('flashSpeaking', {
+      g: gender === 'female' ? t('genderF') : t('genderM'),
+      v: v ? v.name : t('voiceDefault')
+    }));
+  }
+
+  tbody.addEventListener('input', function(e){
+    var tr = e.target.closest('tr'); if(!tr) return;
+    var f = e.target.dataset.f; if(!f) return;
+    var r = state.rows[Number(tr.dataset.i)];
+    r[f] = e.target.value;
+    if(f === 'read'){ updateRowUI(tr, r); updateStats(); }
+    save();
+  });
+  tbody.addEventListener('change', function(e){
+    var tr = e.target.closest('tr'); if(!tr) return;
+    var f = e.target.dataset.f; if(!f) return;
+    var r = state.rows[Number(tr.dataset.i)];
+    r[f] = (e.target.type === 'checkbox') ? e.target.checked : e.target.value;
+    updateRowUI(tr, r);
+    updateStats();
+    save();
+  });
+  tbody.addEventListener('click', function(e){
+    var btn = e.target.closest('button[data-act]'); if(!btn || btn.disabled) return;
+    var tr = btn.closest('tr'); var r = state.rows[Number(tr.dataset.i)];
+    var act = btn.dataset.act;
+    if(act === 'play-f' || act === 'play-m'){
+      speak(sourceOf(r), act === 'play-f' ? 'female' : 'male');
+      if(!r.reviewed){
+        r.listened = true;
+        tr.querySelector('[data-f=listened]').checked = true;
+        updateStats(); save();
+      }
+    }else if(act === 'stop'){
+      try{ speechSynthesis.cancel(); }catch(err){}
+      flash(t('flashStopped'));
+    }else if(act === 'copy-zh'){
+      r.read = r.zh || '';
+      tr.querySelector('[data-f=read]').value = r.read;
+      updateRowUI(tr, r); updateStats(); save();
+      flash(t('flashCopied'));
+    }else if(act === 'clear-read'){
+      r.read = '';
+      tr.querySelector('[data-f=read]').value = '';
+      updateRowUI(tr, r); updateStats(); save();
+      flash(t('flashClearedRead'));
+    }
+  });
+
+  document.getElementById('langSelect').addEventListener('change', function(e){
+    setLang(e.target.value);
+  });
+  // 独立示范行：只读试听，不写入任何数据，不参与导入 / 导出 / 清空
+  document.getElementById('demoBody').addEventListener('click', function(e){
+    var b = e.target.closest('button[data-demo-play]');
+    if(!b) return;
+    var g = b.dataset.demoPlay;
+    if(g === 'stop'){
+      try{ speechSynthesis.cancel(); }catch(err){}
+      flash(t('flashStopped'));
+    }else if(g === 'orig'){
+      speak('重庆市', 'female');
+    }else{
+      speak('崇庆市', g === 'f' ? 'female' : 'male');
+    }
+  });
+  document.getElementById('btnLockAll').addEventListener('click', function(){
+    state.settings.lockedAll = !state.settings.lockedAll;
+    applyStaticLang();
+    applyGlobalLock();
+    save();
+    flash(state.settings.lockedAll ? t('flashLocked') : t('flashUnlocked'));
+  });
+  document.getElementById('btnStopAll').addEventListener('click', function(){
+    try{ speechSynthesis.cancel(); }catch(e){}
+    flash(t('flashStopAll'));
+  });
+  ['female','male'].forEach(function(g){
+    document.getElementById(g+'Voice').addEventListener('change', function(e){
+      state.settings[g] = e.target.value; save();
+    });
+  });
+  document.getElementById('rate').addEventListener('input', function(e){
+    state.settings.rate = parseFloat(e.target.value);
+    document.getElementById('rateVal').textContent = state.settings.rate.toFixed(2);
+    save();
+  });
+
+  document.getElementById('btnImport').addEventListener('click', function(){
+    var txt = document.getElementById('pasteArea').value;
+    var lines = txt.split(/\r?\n/).filter(function(l){ return l.trim() !== ''; });
+    if(!lines.length){ flash(t('flashPasteEmpty')); return; }
+    var skipped = 0;
+    lines.forEach(function(line, idx){
+      while(state.rows.length <= idx) state.rows.push(blank(state.rows.length + 1));
+      if(state.rows[idx].reviewed){ skipped++; return; }
+      var parts = line.split('\t');
+      if(parts.length >= 3){
+        state.rows[idx].en = parts[0].trim();
+        state.rows[idx].zh = parts[1].trim();
+        state.rows[idx].read = parts.slice(2).join('\t').trim();
+      }else if(parts.length === 2){
+        state.rows[idx].en = parts[0].trim();
+        state.rows[idx].zh = parts[1].trim();
+      }else{
+        state.rows[idx].zh = parts[0].trim();
+      }
+    });
+    buildRows(); save();
+    flash(t('flashImported', {
+      n: lines.length - skipped,
+      skip: skipped ? t('flashSkip', { m: skipped }) : ''
+    }));
+  });
+
+  function download(name, content, type){
+    var blob = new Blob([content], { type:type });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+  }
+  function csvCell(s){ return '"' + String(s == null ? '' : s).replace(/"/g,'""') + '"'; }
+  document.getElementById('btnCsv').addEventListener('click', function(){
+    var lines = [t('csvHead').map(csvCell).join(',')];
+    state.rows.forEach(function(r){
+      lines.push([
+        r.no, r.en, r.zh, r.read, hasRead(r) ? t('csvSrcRead') : t('csvSrcZh'),
+        r.listened ? t('csvListened') : t('csvNotListened'), r.note,
+        r.reviewed ? t('csvYes') : t('csvNo')
+      ].map(csvCell).join(','));
+    });
+    download('zh-tts-review.csv', '\uFEFF' + lines.join('\r\n'), 'text/csv;charset=utf-8');
+    flash(t('flashCsv'));
+  });
+  document.getElementById('btnJson').addEventListener('click', function(){
+    download('zh-tts-review-backup.json', JSON.stringify(state, null, 2), 'application/json');
+    flash(t('flashJson'));
+  });
+  // 客户交付视图：自包含英文 HTML 报告，只含客户该看的字段（校音串 / 内部标记一律不出报告）
+  function p2(n){ return (n < 10 ? '0' : '') + n; }
+  function escHtml(s){
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+  function buildDeliveryReport(){
+    var rows = state.rows || [];
+    var delivered = rows.filter(function(r){
+      return String(r.en||'').trim() || String(r.zh||'').trim();
+    });
+    var noted = rows.filter(function(r){
+      return String(r.note||'').trim() || String(r.read||'').trim();
+    });
+    var reviewed = rows.filter(function(r){ return !!r.reviewed; }).length;
+    var d = new Date();
+    var stamp = d.getFullYear() + '-' + p2(d.getMonth()+1) + '-' + p2(d.getDate());
+    var h = [];
+    h.push('<!DOCTYPE html>');
+    h.push('<html lang="en"><head><meta charset="UTF-8">');
+    h.push('<meta name="viewport" content="width=device-width, initial-scale=1">');
+    h.push('<title>Translation delivery - English to Simplified Chinese</title>');
+    h.push('<style>');
+    h.push('body{margin:0;padding:28px 30px 50px;background:#fff;color:#1c2430;font:14px/1.6 "Segoe UI",Arial,"Microsoft YaHei",sans-serif}');
+    h.push('h1{font-size:20px;margin:0 0 4px}h2{font-size:15px;margin:26px 0 8px;padding-bottom:5px;border-bottom:2px solid #dfe3e8}');
+    h.push('.sub{color:#6b7684;font-size:12.5px;margin:0 0 18px}');
+    h.push('.meta{display:flex;flex-wrap:wrap;gap:8px 24px;background:#f5f7fa;border:1px solid #dfe3e8;border-radius:8px;padding:10px 14px;font-size:12.5px;margin-bottom:6px}');
+    h.push('.meta b{color:#12325c}');
+    h.push('table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:12.5px}');
+    h.push('th,td{border:1px solid #dfe3e8;padding:7px 9px;text-align:left;vertical-align:top;word-wrap:break-word;overflow-wrap:anywhere}');
+    h.push('th{background:#eef1f5;font-weight:600}');
+    h.push('tbody tr:nth-child(even){background:#fafbfc}');
+    h.push('col.c-no{width:6%}col.c-en{width:42%}col.c-zh{width:42%}col.c-st{width:10%}');
+    h.push('col.c-n2{width:8%}col.c-z2{width:32%}col.c-nt{width:60%}');
+    h.push('.note{white-space:pre-wrap}');
+    h.push('.empty{color:#6b7684;font-size:12.5px;padding:10px 0}');
+    h.push('.foot{margin-top:26px;padding-top:12px;border-top:1px solid #dfe3e8;font-size:11.5px;color:#6b7684;line-height:1.8}');
+    h.push('.credit{text-align:center;margin-top:10px;font-size:11px;color:#6b7684;line-height:1.8}');
+    h.push('.credit .sep{margin:0 5px;opacity:.55}');
+    h.push('.credit .mark{width:13px;height:13px;vertical-align:-2px;margin-right:4px}');
+    h.push('.author{color:#12325c;font-weight:600}a{color:#1f6feb}');
+    h.push('.toolver{font-size:10.5px;color:#8a94a1}');
+    h.push('@media print{body{padding:0}h2{page-break-after:avoid}tr{page-break-inside:avoid}}');
+    h.push('</style></head><body>');
+    h.push('<h1>Translation delivery &mdash; English to Simplified Chinese</h1>');
+    h.push('<p class="sub">' + rows.length + ' short phone announcement lines &middot; TTS audio review sheet</p>');
+    h.push('<div class="meta">');
+    h.push('<span>Generated: <b>' + stamp + '</b></span>');
+    h.push('<span>Lines delivered: <b>' + delivered.length + ' / ' + rows.length + '</b></span>');
+    h.push('<span>Manually reviewed: <b>' + reviewed + ' / ' + rows.length + '</b></span>');
+    h.push('<span>Notes for TTS pipeline: <b>' + noted.length + '</b></span>');
+    h.push('</div>');
+    h.push('<h2>1. Delivered translation</h2>');
+    if(!delivered.length){
+      h.push('<p class="empty">No translation lines have been filled in yet.</p>');
+    }else{
+      h.push('<table><colgroup><col class="c-no"><col class="c-en"><col class="c-zh"><col class="c-st"></colgroup>');
+      h.push('<thead><tr><th>No.</th><th>English source</th><th>Simplified Chinese (delivery)</th><th>Review</th></tr></thead><tbody>');
+      delivered.forEach(function(r){
+        h.push('<tr><td>' + r.no + '</td><td>' + escHtml(r.en) + '</td><td>' + escHtml(r.zh) + '</td><td>' + (r.reviewed ? 'Reviewed' : '&mdash;') + '</td></tr>');
+      });
+      h.push('</tbody></table>');
+    }
+    h.push('<h2>2. TTS audio review &amp; pronunciation notes</h2>');
+    if(!noted.length){
+      h.push('<p class="empty">No pronunciation or review notes recorded.</p>');
+    }else{
+      h.push('<p class="sub">Lines below were checked against a local TTS voice. The Chinese column is the deliverable text; the notes are suggestions for your TTS dictionary / SSML, not replacement text.</p>');
+      h.push('<table><colgroup><col class="c-n2"><col class="c-z2"><col class="c-nt"></colgroup>');
+      h.push('<thead><tr><th>No.</th><th>Chinese (delivery)</th><th>Translator\'s notes</th></tr></thead><tbody>');
+      noted.forEach(function(r){
+        var flag = String(r.read||'').trim() ? 'Pronunciation checked locally. ' : '';
+        h.push('<tr><td>' + r.no + '</td><td>' + escHtml(r.zh) + '</td><td class="note">' + flag + escHtml(r.note) + '</td></tr>');
+      });
+      h.push('</tbody></table>');
+    }
+    h.push('<div class="foot">');
+    h.push('The "Simplified Chinese (delivery)" column is the final translation and must be used as-is for synthesis. Pronunciation verification used a stand-in text read by a local browser voice; it is <b>not</b> part of the delivered translation and never appears in this report.<br>');
+    h.push('Final pronunciation fixes (polyphonic characters, place names, spoken-form numbers) must be applied in your TTS pipeline via dictionary / SSML rules. The notes above list the lines that need attention.<br>');
+    h.push('This report is a self-contained offline file with no external resources and no off-platform contact details. All communication stays on Upwork.');
+    h.push('<div class="credit"><span class="author">Created by Siyuan Zheng &middot; <a href="https://www.upwork.com/freelancers/~01dcb0ebfb63cafa8d" target="_blank" rel="noopener">Upwork profile</a></span><span class="sep">&middot;</span><svg class="mark" viewBox="0 0 64 64" width="13" height="13" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#12325c"/><g fill="#fff"><rect x="14" y="18" width="36" height="5" rx="2.5"/><rect x="14" y="30" width="28" height="5" rx="2.5"/><rect x="14" y="42" width="20" height="5" rx="2.5"/></g><circle cx="48" cy="44" r="6" fill="#4da3ff"/></svg><span class="toolver">Review sheet v' + TOOL_VERSION + '</span><span class="sep">&middot;</span>&copy; 2026</div>');
+    h.push('</div>');
+    h.push('</body></html>');
+    return h.join('\n');
+  }
+  document.getElementById('btnDelivery').addEventListener('click', function(){
+    var d = new Date();
+    var fstamp = d.getFullYear() + p2(d.getMonth()+1) + p2(d.getDate());
+    download('client-delivery-' + fstamp + '.html', buildDeliveryReport(), 'text/html;charset=utf-8');
+    flash(t('flashDelivery'));
+  });
+  document.getElementById('fileJson').addEventListener('change', function(e){
+    var file = e.target.files && e.target.files[0]; if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      try{
+        var d = JSON.parse(reader.result);
+        if(!d || !Array.isArray(d.rows) || !d.rows.length) throw new Error(t('errNoRows'));
+        state.rows = d.rows.map(function(r,i){ r.no = i+1; return migrate(r); });
+        state.settings = Object.assign({ female:'', male:'', rate:0.9, lang:'zh', lockedAll:false }, d.settings || {});
+        lang = I18N[state.settings.lang] ? state.settings.lang : 'zh';
+        state.settings.lang = lang;
+        applyStaticLang();
+        markLangButtons();
+        refillSettings();
+        buildRows(); applyGlobalLock(); save();
+        flash(t('flashRestored', { n: state.rows.length }));
+      }catch(err){ flash(t('flashImportFail', { m: err.message })); }
+      e.target.value = '';
+    };
+    reader.readAsText(file, 'utf-8');
+  });
+  document.getElementById('btnReset').addEventListener('click', function(){
+    if(!window.confirm(t('confirmClear'))) return;
+    state.rows = [];
+    for(var i=1;i<=DEFAULT_ROWS;i++) state.rows.push(blank(i));
+    buildRows(); save();
+    flash(t('flashClearedAll'));
+  });
+
+  function refillSettings(){
+    document.getElementById('rate').value = String(state.settings.rate || 0.9);
+    document.getElementById('rateVal').textContent = (state.settings.rate || 0.9).toFixed(2);
+    fillVoiceSelects();
+    document.getElementById('femaleVoice').value = state.settings.female || '';
+    document.getElementById('maleVoice').value = state.settings.male || '';
+  }
+
+  // ---- 版本面板：纯本地两态（info / result），无联网入口 ----
+  function closeVerPanel(){
+    var p = document.getElementById('verPanel'), b = document.getElementById('verBack');
+    if(p) p.remove();
+    if(b) b.remove();
+  }
+  function renderVerPanel(mode){
+    closeVerPanel();
+    var back = document.createElement('div');
+    back.className = 'verback'; back.id = 'verBack';
+    back.addEventListener('click', closeVerPanel);
+    var p = document.createElement('div');
+    p.className = 'verpanel'; p.id = 'verPanel';
+    p.setAttribute('role', 'dialog');
+    var html = '<h3>' + escHtml(t('verTitle')) + '</h3>';
+    if(mode === 'info'){
+      html += '<p>' + escHtml(t('verInfo', { v: TOOL_VERSION })) + '</p>';
+      html += '<div class="verbtns"><button type="button" data-ver="cancel">' + escHtml(t('verCancel')) + '</button>'
+            + '<button type="button" class="primary" data-ver="check">' + escHtml(t('verCheck')) + '</button></div>';
+    }else{
+      html += '<p>' + escHtml(t('verNotConfigured')) + '</p>';
+      html += '<div class="verbtns"><button type="button" data-ver="cancel">' + escHtml(t('verCancel')) + '</button></div>';
+    }
+    p.innerHTML = html;
+    document.body.appendChild(back);
+    document.body.appendChild(p);
+    p.addEventListener('click', function(e){
+      var b2 = e.target.closest('button[data-ver]');
+      if(!b2) return;
+      var act = b2.getAttribute('data-ver');
+      if(act === 'cancel'){ closeVerPanel(); return; }
+      if(act === 'check'){ renderVerPanel('result'); return; }
+    });
+  }
+  var toolVerEl = document.getElementById('toolver');
+  toolVerEl.textContent = 'Review sheet v' + TOOL_VERSION;
+  toolVerEl.addEventListener('click', function(){ renderVerPanel('info'); });
+  toolVerEl.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); renderVerPanel('info'); }
+  });
+
+  load();
+  lang = I18N[state.settings.lang] ? state.settings.lang : 'zh';
+  state.settings.lang = lang;
+  applyStaticLang();
+  markLangButtons();
+  refillSettings();
+  buildRows();
+  applyGlobalLock();
+  save();
+  if('speechSynthesis' in window){
+    speechSynthesis.onvoiceschanged = fillVoiceSelects;
+    setTimeout(fillVoiceSelects, 800);
+  }
+  flash(t('flashReady'));
+})();
+</script>
+</body>
+</html>
