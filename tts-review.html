@@ -164,8 +164,6 @@ tbody#demoBody tr td.no{background:#fdf0d0}
   .fbcard .fbmail{margin:0 0 12px;font-size:12.5px}
   .fbcard .fbmail a{color:var(--accent)}
   .fbcard .fbfine{font-size:10.5px;line-height:1.6;color:var(--muted);margin-top:10px;padding-top:9px;border-top:1px solid var(--line)}
-  .share-line{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:9px;font-size:11px;color:var(--muted)}
-  .share-line button{font-size:11px;padding:3px 9px;border-radius:6px}
   .aierr{color:#a33;font-size:12px;margin:6px 0}
 </style>
 </head>
@@ -291,10 +289,6 @@ tbody#demoBody tr td.no{background:#fdf0d0}
   试听使用浏览器内置语音合成：标注「本地」的声线在本机合成；若选用标注「网络」的声线，文本可能由浏览器发送给语音服务，请勿粘贴敏感内容。<br>
   本工具仅供母语人工审核人员使用，不生成机器译文，也不代替人工判断；数据自动保存在本浏览器 localStorage 中，换浏览器 / 清缓存前请先「导出 JSON 备份」。合同成立后如需交付，请经 Upwork workroom 上传。
 </footer>
-<div class="share-line">
-  <button type="button" id="btnShare" data-i18n="shBtn">↗ 推荐给同行</button>
-  <span data-i18n="shHint">复制一段工具说明 + 最新版下载地址，发给可能用得上的同行</span>
-</div>
 <div class="credit"><span class="author" data-i18n-html="authorLine"></span><span class="sep">·</span><svg class="mark" viewBox="0 0 64 64" width="13" height="13" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#12325c"/><g fill="#fff"><rect x="14" y="18" width="36" height="5" rx="2.5"/><rect x="14" y="30" width="28" height="5" rx="2.5"/><rect x="14" y="42" width="20" height="5" rx="2.5"/></g><circle cx="48" cy="44" r="6" fill="#4da3ff"/></svg><span class="toolver" id="toolver" role="button" tabindex="0"></span><span class="sep">·</span><span class="year">&copy; 2026</span></div>
 
 <script>
@@ -303,7 +297,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
   var KEY = 'zh_tts_review_v1';
   // 显式版本号：写进工具 footer 与客户交付报告，便于追溯。版本真相源在本文件里，
   // 发布端的 version.json 只是「当前最新版是多少」的对外声明。
-  var TOOL_VERSION = '1.3.7';
+  var TOOL_VERSION = '1.3.8';
   // 联网目标只有公开成品库的只读静态文件及其只读镜像。只有用户主动点「查看新版本 / 下载」
   // 才会请求；均为 GET、无请求体、不携带表格数据、不带凭据，绝不上传任何内容。
   var REPO = 'gaicn/tts-review-sheet';
@@ -457,11 +451,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
       fbCta:'前往 GitHub 提交反馈 ↗',
       fbMailLabel:'反馈邮箱',
       fbFine:'只有你主动点上面的链接或邮箱，才会打开 GitHub 页面 / 邮件客户端。工具本体不会发送、上传表格里的任何内容；是否反馈、反馈什么，完全由你决定。',
-      fbClose:'关闭',
-      shBtn:'↗ 推荐给同行',
-      shHint:'复制一段工具说明 + 最新版下载地址，发给可能用得上的同行',
-      shText:'多语言译文与发音 · AI 辅助人工审核表\n地名 / 名词 / 短语等的可交付正确译文 + 正确发音，逐行人工审核留痕；仅供母语人工审核人员使用。\n单文件离线工具，数据只存本机、不上传；最终答案始终由人选定。\n最新版下载：',
-      shCopied:'推荐文字已复制到剪贴板'
+      fbClose:'关闭'
     },
     en: {
       title:'Chinese Announcement Script - TTS Preview & Pronunciation Table',
@@ -562,11 +552,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
       fbCta:'Open GitHub issues ↗',
       fbMailLabel:'Feedback email',
       fbFine:'Only clicking the link or the email address above opens GitHub / your mail client. The tool itself never sends or uploads any table data. Whether and what to send is entirely up to you.',
-      fbClose:'Close',
-      shBtn:'↗ Recommend to a colleague',
-      shHint:'Copy a short tool description + the latest download link and send it to someone who might need it',
-      shText:'Multilingual Translation & Pronunciation - AI-Assisted Manual Review Sheet\nDeliverable correct translations and correct pronunciation for place names, nouns and phrases, with a line-by-line manual review log. For native-speaker human reviewers only.\nSingle-file offline tool: data stays on this machine and is never uploaded; the human always picks the final answer.\nLatest version:',
-      shCopied:'Recommendation copied to clipboard'
+      fbClose:'Close'
     },
     ko: {
       title:'중국어 안내문 · TTS 시청 및 발음 교정표',
@@ -667,11 +653,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
       fbCta:'GitHub 이슈 열기 ↗',
       fbMailLabel:'피드백 이메일',
       fbFine:'위 링크나 이메일 주소를 직접 클릭할 때만 GitHub 페이지 / 메일 클라이언트가 열립니다. 도구 자체는 표의 어떤 내용도 전송·업로드하지 않으며, 보낼지 무엇을 보낼지는 전적으로 사용자 결정입니다.',
-      fbClose:'닫기',
-      shBtn:'↗ 동료에게 추천',
-      shHint:'도구 설명 + 최신 다운로드 링크를 복사해 필요한 동료에게 보내세요',
-      shText:'다국어 번역·발음 · AI 보조 수동 검수 시트\n지명 / 명사 / 구문의 납품 가능한 올바른 번역 + 올바른 발음, 줄별 수동 검수 기록. 모국어 인공 검수자 전용.\n단일 파일 오프라인 도구로 데이터는 이 기기에만 저장되며 업로드하지 않고, 최종 답안은 항상 사람이 선택합니다.\n최신 버전:',
-      shCopied:'추천 문구를 클립보드에 복사했습니다'
+      fbClose:'닫기'
     }
   };
 
@@ -2081,25 +2063,6 @@ tbody#demoBody tr td.no{background:#fdf0d0}
     });
   }
   document.getElementById('btnFeedback').addEventListener('click', openFeedback);
-
-  // v1.3.7 分享入口：只复制一段说明文字 + 下载地址，零联网、零外发、不打开任何页面
-  var SHARE_URL = 'https://github.com/gaicn/tts-review-sheet/releases/latest';
-  function copyShare(){
-    var text = t('shText') + '\n' + SHARE_URL;
-    var done = function(){ flash(t('shCopied')); };
-    var fallback = function(){
-      try {
-        var ta = document.createElement('textarea');
-        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-        document.body.appendChild(ta); ta.focus(); ta.select();
-        document.execCommand('copy'); ta.remove(); done();
-      } catch(e){ /* 用户仍可手动复制 */ }
-    };
-    if(navigator.clipboard && navigator.clipboard.writeText)
-      navigator.clipboard.writeText(text).then(done, fallback);
-    else fallback();
-  }
-  document.getElementById('btnShare').addEventListener('click', copyShare);
 
 })();
 </script>

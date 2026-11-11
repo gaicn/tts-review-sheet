@@ -1,6 +1,6 @@
 {
-  "version": "1.3.7",
+  "version": "1.3.8",
   "file": "tts-review.html",
   "released": "2026-11-11",
-  "notes": "AI-assisted manual review (optional, self-configured endpoint/model/key stored locally). Offline by default; the opt-in version check is read-only, multi-source and never uploads table data. Downloaded bytes must embed TOOL_VERSION >= the announced latest. Version check and download retry silently up to 3 times when every source fails. New in 1.3.7: a lightweight 'Recommend to a colleague' action in the footer copies a short tool description plus the latest-release download link to the clipboard, in all 8 interface languages - no network request, no upload, no page opened. The public repository also gained a README, an up-to-date description and topics. Keeps the feedback guidance card from 1.3.6 and the GitHub Contents API download fallback from 1.3.4. Final answers are always chosen by the native-speaker human reviewer."
+  "notes": "AI-assisted manual review (optional, self-configured endpoint/model/key stored locally). Offline by default; the opt-in version check is read-only, multi-source and never uploads table data. Downloaded bytes must embed TOOL_VERSION >= the announced latest. Version check and download retry silently up to 3 times when every source fails. New in 1.3.8: removed the 'Recommend to a colleague' footer action introduced in 1.3.7, along with its styles, 8-language strings and clipboard logic; the footer is back to the clean v1.3.6 layout. The public README, repository description and topics from 1.3.7 are kept. Also keeps the feedback guidance card from 1.3.6 and the GitHub Contents API download fallback from 1.3.4. Final answers are always chosen by the native-speaker human reviewer."
 }

@@ -36,7 +36,7 @@ reviewer always chooses the final answer.
 - Optional **AI-assisted review**: bring your own endpoint / model / API key, stored only on this
   machine. The AI returns candidate answers; the human adopts one or dismisses them.
 - An opt-in **version check** with one-click download of a newer file, plus a small feedback card
-  and a "recommend to a colleague" action in the footer.
+  in the footer.
 
 ## Privacy and network behaviour
 
@@ -47,7 +47,6 @@ reviewer always chooses the final answer.
 | Clicking "Download newer version" | Read-only GET of the new HTML file; the downloaded bytes are checked to actually embed the announced version before being saved |
 | Enabling AI assist | Only the current row's source / translation / read-as text is sent to **your own** configured endpoint |
 | Clicking the GitHub link or email in the feedback card | Opens an external page / mail client — only when you click |
-| Clicking "Recommend to a colleague" | Copies a short description and download link to the clipboard. No network, no upload |
 
 Table data, notes and review flags are stored in this browser's `localStorage` only and are never
 uploaded by the tool. The customer delivery report is a static, read-only export with no scripts
