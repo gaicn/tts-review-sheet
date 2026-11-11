@@ -16,7 +16,10 @@ body{margin:0;padding:16px 18px 40px;background:var(--bg);color:var(--ink);
 h1{font-size:19px;margin:0 0 4px;padding-right:230px}
 .sub{margin:0 0 12px;color:var(--muted);font-size:12.5px}
 .dl-hint{font-size:11.5px;color:var(--muted);line-height:1.5;flex:1 1 320px}
-#langSwitch{position:absolute;top:14px;right:18px;z-index:6}
+#langSwitch{position:absolute;top:14px;right:18px;z-index:6;display:flex;flex-direction:column;align-items:flex-end;gap:7px}
+.top-actions{display:flex;gap:6px}
+.top-actions button{font:inherit;font-size:12px;padding:5px 9px;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--ink);cursor:pointer;white-space:nowrap}
+.top-actions button:hover{border-color:var(--accent);color:var(--accent)}
 #langSelect{font:inherit;font-size:12px;padding:5px 8px;border:1px solid var(--line);
   border-radius:7px;background:var(--panel);color:var(--ink);max-width:200px}
 .lock-bar{display:none;background:#fff1f0;border:1px solid #ffc9c4;color:#8a1c13;
@@ -152,7 +155,15 @@ tbody#demoBody tr td.no{background:#fdf0d0}
   .aiwarn{font-size:11.5px;color:var(--muted);line-height:1.6;margin:8px 0}
   .aimodal .ainote{margin-top:10px;padding-top:8px;border-top:1px solid var(--line);
     font-size:10.5px;line-height:1.6;color:var(--muted)}
-  .aimodal textarea.fbdraft{min-height:170px;font:12px/1.6 ui-monospace,Consolas,"Courier New",monospace}
+  .fbcard{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(460px,92vw);max-height:88vh;overflow:auto;z-index:61;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 18px 50px rgba(0,0,0,.22);padding:20px 22px;font-size:13px;line-height:1.7}
+  .fbcard h3{margin:0 0 10px;font-size:16px}
+  .fbcard .fblead{margin:0 0 14px;font-size:12.5px;color:var(--ink)}
+  .fbcard .fbcta{display:block;text-align:center;padding:10px 12px;border-radius:8px;background:var(--accent);color:#fff;text-decoration:none;font-weight:600}
+  .fbcard .fbcta:hover{opacity:.9;color:#fff}
+  .fbcard .fburl{margin:7px 0 14px;font-size:11px;color:var(--muted);word-break:break-all;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:7px 9px}
+  .fbcard .fbmail{margin:0 0 12px;font-size:12.5px}
+  .fbcard .fbmail a{color:var(--accent)}
+  .fbcard .fbfine{font-size:10.5px;line-height:1.6;color:var(--muted);margin-top:10px;padding-top:9px;border-top:1px solid var(--line)}
   .aierr{color:#a33;font-size:12px;margin:6px 0}
 </style>
 </head>
@@ -169,6 +180,10 @@ tbody#demoBody tr td.no{background:#fdf0d0}
     <option value="my">မြန်မာ</option>
     <option value="mn">Монгол</option>
   </select>
+  <div class="top-actions">
+    <button type="button" id="btnAiSettings" data-i18n="aiSettings">⚙ AI 设置</button>
+    <button type="button" id="btnFeedback" data-i18n="fbBtn">💬 反馈</button>
+  </div>
 </div>
 <div class="lock-bar" id="lockBar" data-i18n="lockBar">🔒 全局已锁定 · 点顶部「解锁」后方可编辑</div>
 
@@ -209,8 +224,6 @@ tbody#demoBody tr td.no{background:#fdf0d0}
     <button type="button" class="primary" id="btnImport" data-i18n="btnImport">从下方粘贴区导入</button>
     <button type="button" id="btnCsv" data-i18n="btnCsv">导出 CSV（Excel 可开）</button>
     <button type="button" id="btnJson" data-i18n="btnJson">导出 JSON 备份</button>
-    <button type="button" id="btnAiSettings" data-i18n="aiSettings">⚙ AI 设置</button>
-    <button type="button" id="btnFeedback" data-i18n="fbBtn">💬 反馈</button>
     <button type="button" class="primary" id="btnDelivery" data-i18n="btnDelivery" data-i18n-title="btnDeliveryTitle" title="导出给客户看的英文交付报告">导出客户交付视图</button>
     <label class="chk"><span data-i18n="lblImportBackup">导入备份</span> <input type="file" id="fileJson" accept=".json,application/json"></label>
     <button type="button" id="btnReset" data-i18n="btnReset">清空内容</button>
@@ -272,7 +285,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
 </details>
 
 <footer data-i18n-html="footer">
-  本文件默认离线可用，所有样式与脚本均内联，译文审校 / 校音 / 导入导出 / 交付报告断网照常；只有你主动点页脚版本号并点「查看新版本（需联网）」时才会联网，且只读取版本信息与新版文件，不上传表格内容，也不打开任何网站。<br>
+  本文件默认离线可用，所有样式与脚本均内联，译文审校 / 校音 / 导入导出 / 交付报告断网照常；只有你主动点页脚版本号并点「查看新版本（需联网）」时才会联网，且只读取版本信息与新版文件，不上传表格内容；反馈卡片里的 GitHub 链接与邮箱只有你点击才会打开外部页面。<br>
   试听使用浏览器内置语音合成：标注「本地」的声线在本机合成；若选用标注「网络」的声线，文本可能由浏览器发送给语音服务，请勿粘贴敏感内容。<br>
   本工具仅供母语人工审核人员使用，不生成机器译文，也不代替人工判断；数据自动保存在本浏览器 localStorage 中，换浏览器 / 清缓存前请先「导出 JSON 备份」。合同成立后如需交付，请经 Upwork workroom 上传。
 </footer>
@@ -284,7 +297,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
   var KEY = 'zh_tts_review_v1';
   // 显式版本号：写进工具 footer 与客户交付报告，便于追溯。版本真相源在本文件里，
   // 发布端的 version.json 只是「当前最新版是多少」的对外声明。
-  var TOOL_VERSION = '1.3.5';
+  var TOOL_VERSION = '1.3.6';
   // 联网目标只有公开成品库的只读静态文件及其只读镜像。只有用户主动点「查看新版本 / 下载」
   // 才会请求；均为 GET、无请求体、不携带表格数据、不带凭据，绝不上传任何内容。
   var REPO = 'gaicn/tts-review-sheet';
@@ -433,13 +446,12 @@ tbody#demoBody tr td.no{background:#fdf0d0}
       verClose:'关闭',
       verRetry:'重试',
       fbBtn:'💬 反馈',
-      fbTitle:'反馈草稿',
-      fbLabel:'反馈内容（下面的元信息可保留，也可自行删改）',
-      fbNote:'这里只在本机生成一段反馈草稿，不发送、不上传、不打开任何网站。开头只带非敏感的元信息（版本号 / 界面语言 / 交付语言），默认不含表格里的任何译文、地名或备注；你可以自行编辑，再复制粘贴到你信任的渠道（邮件、聊天、工单等）。是否发出、发给谁，完全由你决定。',
-      fbPlaceholder:'在此写下你的意见…（请勿粘贴客户译文或敏感内容）',
-      fbCopy:'复制反馈文本',
-      fbClose:'关闭',
-      fbCopied:'反馈草稿已复制到剪贴板'
+      fbTitle:'反馈与建议',
+      fbLead:'遇到问题，或有改进建议？欢迎通过下面的渠道告诉我们。反馈仅用于改进本工具；请勿在反馈中粘贴任何译文、地名、备注或客户资料。',
+      fbCta:'前往 GitHub 提交反馈 ↗',
+      fbMailLabel:'反馈邮箱',
+      fbFine:'只有你主动点上面的链接或邮箱，才会打开 GitHub 页面 / 邮件客户端。工具本体不会发送、上传表格里的任何内容；是否反馈、反馈什么，完全由你决定。',
+      fbClose:'关闭'
     },
     en: {
       title:'Chinese Announcement Script - TTS Preview & Pronunciation Table',
@@ -535,13 +547,12 @@ tbody#demoBody tr td.no{background:#fdf0d0}
       verClose:'Close',
       verRetry:'Retry',
       fbBtn:'Feedback',
-      fbTitle:'Feedback draft',
-      fbLabel:'Feedback text (keep or edit the metadata header as you like)',
-      fbNote:'This panel only builds a feedback draft locally. Nothing is sent, uploaded, or opened. The header contains only non-sensitive metadata (tool version / UI language / delivery language) and never any translation, place name or note from your table. Edit freely, then copy and paste into any channel you trust (email, chat, ticket, etc.). Whether and where to send it is entirely up to you.',
-      fbPlaceholder:'Write your feedback here... (do not paste client translations or sensitive content)',
-      fbCopy:'Copy feedback text',
-      fbClose:'Close',
-      fbCopied:'Feedback draft copied to clipboard'
+      fbTitle:'Feedback & suggestions',
+      fbLead:'Found a problem or have an idea? Tell us through one of the channels below. Feedback is used only to improve this tool. Please do not paste any translation, place name, note or client material into your feedback.',
+      fbCta:'Open GitHub issues ↗',
+      fbMailLabel:'Feedback email',
+      fbFine:'Only clicking the link or the email address above opens GitHub / your mail client. The tool itself never sends or uploads any table data. Whether and what to send is entirely up to you.',
+      fbClose:'Close'
     },
     ko: {
       title:'중국어 안내문 · TTS 시청 및 발음 교정표',
@@ -637,13 +648,12 @@ tbody#demoBody tr td.no{background:#fdf0d0}
       verClose:'닫기',
       verRetry:'다시 시도',
       fbBtn:'피드백',
-      fbTitle:'피드백 초안',
-      fbLabel:'피드백 내용 (머리말은 유지하거나 자유롭게 수정하세요)',
-      fbNote:'이 창은 기기 안에서 피드백 초안만 만들며, 전송·업로드·웹사이트 열기가 전혀 없습니다. 머리말에는 민감하지 않은 정보(도구 버전 / 인터페이스 언어 / 납품 언어)만 들어가며 표의 번역문·지명·비고는 포함되지 않습니다. 자유롭게 수정한 뒤 신뢰하는 채널(메일, 채팅, 티켓 등)에 붙여넣으세요. 보낼지, 누구에게 보낼지는 전적으로 사용자 결정입니다.',
-      fbPlaceholder:'의견을 적어 주세요… (고객 번역문이나 민감한 내용은 붙여넣지 마세요)',
-      fbCopy:'피드백 텍스트 복사',
-      fbClose:'닫기',
-      fbCopied:'피드백 초안을 클립보드에 복사했습니다'
+      fbTitle:'피드백 및 제안',
+      fbLead:'문제가 있거나 개선 제안이 있으신가요? 아래 채널로 알려주세요. 피드백은 본 도구 개선에만 사용됩니다. 번역문·지명·비고 또는 고객 자료를 피드백에 붙여넣지 마세요.',
+      fbCta:'GitHub 이슈 열기 ↗',
+      fbMailLabel:'피드백 이메일',
+      fbFine:'위 링크나 이메일 주소를 직접 클릭할 때만 GitHub 페이지 / 메일 클라이언트가 열립니다. 도구 자체는 표의 어떤 내용도 전송·업로드하지 않으며, 보낼지 무엇을 보낼지는 전적으로 사용자 결정입니다.',
+      fbClose:'닫기'
     }
   };
 
@@ -924,11 +934,11 @@ tbody#demoBody tr td.no{background:#fdf0d0}
       demoBadge:'中文示范',
       demoTip:'中文示范：用同音字「崇」改变「重」的读音（其他语种请按本语言规则填写）',
       demoSrc:'当前读：校音串（中文示范）',
-      footer:'本文件默认离线可用，所有样式与脚本均内联，译文审校 / 校音 / 导入导出 / 交付报告断网照常；只有你主动点页脚版本号并点「查看新版本（需联网）」时才会联网，且只读取版本信息与新版文件，不上传表格内容，也不打开任何网站。<br>'+
+      footer:'本文件默认离线可用，所有样式与脚本均内联，译文审校 / 校音 / 导入导出 / 交付报告断网照常；只有你主动点页脚版本号并点「查看新版本（需联网）」时才会联网，且只读取版本信息与新版文件，不上传表格内容；反馈卡片里的 GitHub 链接与邮箱只有你点击才会打开外部页面。<br>'+
         '试听使用浏览器内置语音合成：标注「本地」的声线在本机合成；若选用标注「网络」的声线，文本可能由浏览器发送给语音服务，请勿粘贴敏感内容。<br>'+
         '本工具仅供母语人工审核人员使用，不生成机器译文，也不代替人工判断；数据自动保存在本浏览器 localStorage 中，换浏览器 / 清缓存前请先「导出 JSON 备份」。合同成立后如需交付，请经 Upwork workroom 上传。',
       verInfo:'当前版本 v{v}。',
-      verNote:'默认离线可用：译文审校 / 校音 / 导入导出 / 交付报告断网照常。点「查看新版本」才会联网，只读取版本信息与新版文件，不上传表格内容，也不打开任何网站。',
+      verNote:'默认离线可用：译文审校 / 校音 / 导入导出 / 交付报告断网照常。点「查看新版本」才会联网，只读取版本信息与新版文件，不上传表格内容；反馈卡片里的 GitHub 链接与邮箱只有你点击才会打开外部页面。',
       verCheck:'查看新版本（需联网）',
       flashDeliveryLang:'交付语言已切换为 {L}'
     },
@@ -971,11 +981,11 @@ tbody#demoBody tr td.no{background:#fdf0d0}
       demoBadge:'Chinese demo',
       demoTip:'Chinese example: the homophone 崇 changes the reading of 重 (for other languages follow that language\'s rules)',
       demoSrc:'Reading: pronunciation string (Chinese example)',
-      footer:'This file works offline by default: all styles and scripts are inline, and translation review / pronunciation / import-export / delivery reports work without a network. Only when you click the footer version badge and then "Check for a newer version (requires internet)" does it go online - it reads only version info and the new file, never uploads table data, and opens no website.<br>'+
+      footer:'This file works offline by default: all styles and scripts are inline, and translation review / pronunciation / import-export / delivery reports work without a network. Only when you click the footer version badge and then "Check for a newer version (requires internet)" does it go online - it reads only version info and the new file, never uploads table data; links and the email in the feedback card open an external page only when you click them.<br>'+
         'Preview uses browser built-in speech synthesis: voices marked "local" are synthesized on this machine; if you pick a voice marked "network", the text may be sent by the browser to a speech service - do not paste sensitive content.<br>'+
         'For native-speaker human reviewers only; this tool produces no machine translation and does not replace human judgement. Data is saved in this browser\'s localStorage - export a JSON backup before switching browser or clearing cache. Deliver via the Upwork workroom after a contract is in place.',
       verInfo:'Current version: v{v}.',
-      verNote:'Offline by default: translation review, pronunciation, import / export and delivery reports need no network. "Check for a newer version" connects once, reads only version info and the new file, never uploads table data, and opens no website.',
+      verNote:'Offline by default: translation review, pronunciation, import / export and delivery reports need no network. "Check for a newer version" connects once, reads only version info and the new file, never uploads table data; links and the email in the feedback card open an external page only when you click them.',
       verCheck:'Check for a newer version (requires internet)',
       flashDeliveryLang:'Delivery language switched to {L}'
     },
@@ -1018,11 +1028,11 @@ tbody#demoBody tr td.no{background:#fdf0d0}
       demoBadge:'중국어 예시',
       demoTip:'중국어 예시: 동음자「崇」으로「重」의 읽기를 바꿈 (다른 언어는 해당 언어 규칙 적용)',
       demoSrc:'현재 읽기: 발음 문자열 (중국어 예시)',
-      footer:'이 파일은 기본적으로 오프라인에서 작동합니다. 모든 스타일·스크립트가 인라인이며 번역 검수 / 발음 / 가져오기·내보내기 / 납품 보고서는 네트워크 없이 됩니다. 페이지 하단 버전 번호를 누르고 「새 버전 확인 (인터넷 필요)」 버튼을 누를 때만联网하며 버전 정보와 새 파일만 읽고 표 데이터는 절대 업로드하지 않으며 웹사이트도 열지 않습니다.<br>'+
+      footer:'이 파일은 기본적으로 오프라인에서 작동합니다. 모든 스타일·스크립트가 인라인이며 번역 검수 / 발음 / 가져오기·내보내기 / 납품 보고서는 네트워크 없이 됩니다. 페이지 하단 버전 번호를 누르고 「새 버전 확인 (인터넷 필요)」 버튼을 누를 때만联网하며 버전 정보와 새 파일만 읽고 표 데이터는 절대 업로드하지 않으며 피드백 카드의 링크와 이메일은 직접 클릭할 때만 외부 페이지를 엽니다.<br>'+
         '미리듣기는 브라우저 내장 음성 합성을 사용합니다. 「로컬」 음성은 이 기기에서 합성되고 「네트워크」 음성을 선택하면 텍스트가 음성 서비스로 전송될 수 있으니 민감한 내용을 붙여넣지 마세요.<br>'+
         '모국어 수동 검수자 전용이며 기계 번역을 생성하지 않고 사람의 판단을 대신하지 않습니다. 데이터는 이 브라우저 localStorage에 저장되므로 브라우저 변경 / 캐시 삭제 전 「JSON 백업 내보내기」를 하세요. 계약 체결 후 납품은 Upwork workroom을 통해 진행하세요.',
       verInfo:'현재 버전 v{v}.',
-      verNote:'기본 오프라인: 번역 검수 / 발음 / 가져오기·내보내기 / 납품 보고서는 네트워크 없이 됩니다. 「새 버전 확인」을 누를 때만 연결되며 버전 정보와 새 파일만 읽고 표 데이터는 업로드하지 않으며 웹사이트도 열지 않습니다.',
+      verNote:'기본 오프라인: 번역 검수 / 발음 / 가져오기·내보내기 / 납품 보고서는 네트워크 없이 됩니다. 「새 버전 확인」을 누를 때만 연결되며 버전 정보와 새 파일만 읽고 표 데이터는 업로드하지 않으며 피드백 카드의 링크와 이메일은 직접 클릭할 때만 외부 페이지를 엽니다.',
       verCheck:'새 버전 확인 (인터넷 필요)',
       flashDeliveryLang:'납품 언어가 {L}(으)로 변경되었습니다'
     },
@@ -1040,7 +1050,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
       sub:'地名 / 名词 / 短语等的可交付正确译文 + 正确发音 · 逐行人工审核留痕 · 可选 AI 辅助交叉核对 · 数据存本机',
       nativeOnly:'面向母语人工审核人员；文字与发音的正确性由人最终判定。AI 只提供候选答案、可信度与权威性参考，不替人做决定。',
       noticeBody:'<b>适用对象：</b>母语人工审核人员逐行核对可交付译文与发音是否正确。可选启用 AI 辅助交叉核对候选答案；<b>最终答案由人选定</b>，AI 输出仅供参考，不自动写入表格。<br>',
-      footer:'本文件默认离线可用，所有样式与脚本均内联；译文审校 / 校音 / 导入导出 / 交付报告断网照常。点「查看新版本」只读版本信息与新版文件；<b>启用 AI 辅助时</b>，才会把当前这一行的源文与当前译文 / 校音发往你自填的接口。endpoint / model / key 只存本机，不上传整表、备注或审核标记，也不打开任何网站。<br>',
+      footer:'本文件默认离线可用，所有样式与脚本均内联；译文审校 / 校音 / 导入导出 / 交付报告断网照常。点「查看新版本」只读版本信息与新版文件；<b>启用 AI 辅助时</b>，才会把当前这一行的源文与当前译文 / 校音发往你自填的接口。endpoint / model / key 只存本机，不上传整表、备注或审核标记；反馈卡片里的 GitHub 链接与邮箱只有你点击才会打开外部页面。<br>',
       aiSettings:'⚙ AI 设置', aiOpen:'AI 辅助', aiOpenTitle:'打开本行的 AI 辅助工作区（译文与校音合并处理）',
       aiFreeNote:'主流 AI 模型厂商多提供带免费额度的模型。请自行前往其官方平台注册并申请 API key，再填入上方；本工具不推荐厂商、不代申请、不内置任何接口地址或密钥，也不参与你的账号、用量与计费。免费额度与可用性以厂商官方说明为准。'
     },
@@ -1049,7 +1059,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
       sub:'Deliverable correct translations and correct pronunciation for place names, nouns and phrases - line-by-line manual review log - optional AI-assisted cross-check - data stays on this machine',
       nativeOnly:'For native-speaker human reviewers. Correctness of wording and pronunciation is finally judged by a human; AI only offers candidate answers, confidence and authority hints and never decides for you.',
       noticeBody:'<b>Who this sheet is for:</b> native-speaker human reviewers check, line by line, whether the deliverable translation and its pronunciation are correct. An optional AI cross-check may suggest candidates; <b>the human picks the final answer</b> and AI output is advisory only, never written to the sheet automatically.<br>',
-      footer:'This file works offline by default with all styles and scripts inline; review, pronunciation, import / export and delivery reports need no network. "Check for a newer version" only reads version info and the new file; <b>enabling AI assistance</b> sends only this one row\'s source text and current translation / pronunciation string to the endpoint you configured. Endpoint / model / key stay on this machine - no full table, notes or review flags are uploaded, and no website is opened.<br>',
+      footer:'This file works offline by default with all styles and scripts inline; review, pronunciation, import / export and delivery reports need no network. "Check for a newer version" only reads version info and the new file; <b>enabling AI assistance</b> sends only this one row\'s source text and current translation / pronunciation string to the endpoint you configured. Endpoint / model / key stay on this machine - no full table, notes or review flags are uploaded; links and the email in the feedback card open an external page only when you click them.<br>',
       aiSettings:'AI settings', aiOpen:'AI assist', aiOpenTitle:'Open the AI-assisted workspace for this row (translation and pronunciation handled together)',
       aiFreeNote:'Most mainstream AI model providers offer models with a free tier. Please register and apply for an API key on their official platform, then enter it above. This tool does not recommend providers, does not apply on your behalf, embeds no endpoint or key, and takes no part in your account, usage or billing. Free-tier terms and availability are set by each provider.'
     },
@@ -1058,7 +1068,7 @@ tbody#demoBody tr td.no{background:#fdf0d0}
       sub:'지명 / 명사 / 구문의 납품 가능한 올바른 번역 + 올바른 발음 · 줄별 수동 검수 기록 · 선택적 AI 보조 교차 확인 · 데이터는 이 기기에만 저장',
       nativeOnly:'모국어 인공 검수자용. 문구와 발음의 정확성은 최종적으로 사람이 판단하며, AI는 후보 답안·신뢰도·권위 정보만提供参考하고 사람을 대신해 결정하지 않습니다.',
       noticeBody:'<b>사용 대상:</b> 모국어 인공 검수자가 줄마다 납품 번역과 발음이 올바른지 확인합니다. 선택적으로 AI 교차 확인이 후보를 제안할 수 있으나, <b>최종 답안은 사람이 선택</b>하며 AI 출력은 참고용으로만 쓰이고 표에 자동 반영되지 않습니다.<br>',
-      footer:'이 파일은 기본적으로 오프라인에서 작동하며 모든 스타일·스크립트가 인라인입니다. 「새 버전 확인」은 버전 정보와 새 파일만 읽습니다. <b>AI 보조를 켤 때만</b> 현재 줄의 원문과 현재 번역 / 발음 문자열을 직접 입력한 endpoint로 보냅니다. endpoint / model / key는 이 기기에만 저장되며 표 전체·비고·검수 표시는 업로드하지 않고 웹사이트도 열지 않습니다.<br>',
+      footer:'이 파일은 기본적으로 오프라인에서 작동하며 모든 스타일·스크립트가 인라인입니다. 「새 버전 확인」은 버전 정보와 새 파일만 읽습니다. <b>AI 보조를 켤 때만</b> 현재 줄의 원문과 현재 번역 / 발음 문자열을 직접 입력한 endpoint로 보냅니다. endpoint / model / key는 이 기기에만 저장되며 표 전체·비고·검수 표시는 업로드하지 않고 피드백 카드의 링크와 이메일은 직접 클릭할 때만 외부 페이지를 엽니다.<br>',
       aiSettings:'AI 설정', aiOpen:'AI 보조', aiOpenTitle:'이 줄의 AI 보조 작업공간 열기 (번역과 발음 함께 처리)',
       aiFreeNote:'주요 AI 모델 제공사 대부분은 무료 할당량이 있는 모델을 제공합니다. 해당 공식 플랫폼에서 직접 가입하고 API 키를 발급받은 뒤 위에 입력하세요. 이 도구는 제공사를 추천하거나 대신 신청하지 않으며, 어떤 엔드포인트·키도 내장하지 않고 계정·사용량·과금에 관여하지 않습니다. 무료 할당량과 이용 가능 여부는 각 제공사의 정책을 따릅니다.'
     }
@@ -2023,7 +2033,9 @@ tbody#demoBody tr td.no{background:#fdf0d0}
   }
   document.getElementById('btnAiSettings').addEventListener('click', openAiSettings);
 
-  // v1.3.5 反馈入口：只在本机生成草稿，不发送、不上传、不打开网站
+  // v1.3.6 反馈入口：纯引导卡片；只有用户主动点链接 / 邮箱才会打开外部页面
+  var FB_ISSUES_URL = 'https://github.com/gaicn/tts-review-sheet/issues';
+  var FB_EMAIL = 'feedbug@foxmail.com';
   function closeFbModal(){
     var a = document.getElementById('fbMask'), b = document.getElementById('fbModal');
     if(a) a.remove(); if(b) b.remove();
@@ -2031,42 +2043,23 @@ tbody#demoBody tr td.no{background:#fdf0d0}
   function fbModal(html){
     closeFbModal();
     var mask = document.createElement('div'); mask.className = 'aimask'; mask.id = 'fbMask';
-    var box = document.createElement('div'); box.className = 'aimodal'; box.id = 'fbModal';
-    box.setAttribute('role','dialog'); box.innerHTML = html;
+    var box = document.createElement('div'); box.className = 'fbcard'; box.id = 'fbModal';
+    box.setAttribute('role','dialog'); box.setAttribute('aria-modal','true'); box.innerHTML = html;
     document.body.appendChild(mask); document.body.appendChild(box);
     mask.addEventListener('click', closeFbModal);
     return box;
   }
-  function fbDraftText(){
-    return '[Review sheet feedback]\n'
-      + 'Tool version: v' + TOOL_VERSION + '\n'
-      + 'UI language: ' + lang + '\n'
-      + 'Delivery language: ' + dlEn() + ' (' + (state.settings.deliveryLang || 'zh-CN') + ')\n'
-      + '------------------------------\n';
-  }
-  function copyFeedback(ta){
-    var done = function(){ flash(t('fbCopied')); };
-    var fallback = function(){
-      try { ta.focus(); ta.select(); document.execCommand('copy'); done(); }
-      catch(e){ /* 用户仍可手动 Ctrl+C */ }
-    };
-    if(navigator.clipboard && navigator.clipboard.writeText)
-      navigator.clipboard.writeText(ta.value).then(done, fallback);
-    else fallback();
-  }
   function openFeedback(){
     var box = fbModal('<h3>' + escHtml(t('fbTitle')) + '</h3>'
-      + '<div class="ainote">' + escHtml(t('fbNote')) + '</div>'
-      + '<div class="airow"><label>' + escHtml(t('fbLabel')) + '</label>'
-      + '<textarea id="fbDraft" class="fbdraft" spellcheck="false">' + escHtml(fbDraftText()) + '</textarea></div>'
-      + '<div class="aifoot"><button type="button" data-fb="close">' + escHtml(t('fbClose')) + '</button>'
-      + '<button type="button" data-fb="copy" class="primary">' + escHtml(t('fbCopy')) + '</button></div>');
-    var ta = document.getElementById('fbDraft');
-    ta.placeholder = t('fbPlaceholder');
+      + '<p class="fblead">' + escHtml(t('fbLead')) + '</p>'
+      + '<a class="fbcta" href="' + FB_ISSUES_URL + '" target="_blank" rel="noopener noreferrer">' + escHtml(t('fbCta')) + '</a>'
+      + '<div class="fburl">' + escHtml(FB_ISSUES_URL) + '</div>'
+      + '<div class="fbmail">' + escHtml(t('fbMailLabel')) + ' · <a href="mailto:' + FB_EMAIL + '">' + escHtml(FB_EMAIL) + '</a></div>'
+      + '<div class="fbfine">' + escHtml(t('fbFine')) + '</div>'
+      + '<div class="aifoot"><button type="button" data-fb="close">' + escHtml(t('fbClose')) + '</button></div>');
     box.addEventListener('click', function(e){
       var b = e.target.closest('button[data-fb]'); if(!b) return;
-      if(b.dataset.fb === 'close'){ closeFbModal(); return; }
-      if(b.dataset.fb === 'copy'){ copyFeedback(ta); }
+      if(b.dataset.fb === 'close'){ closeFbModal(); }
     });
   }
   document.getElementById('btnFeedback').addEventListener('click', openFeedback);
